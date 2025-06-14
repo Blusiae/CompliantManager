@@ -1,0 +1,6 @@
+@CompliantManager.Server_HostAddress = http://localhost:5199
+
+GET {{CompliantManager.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
