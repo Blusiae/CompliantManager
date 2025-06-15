@@ -140,8 +140,7 @@ namespace CompliantManager.Server.Data.Migrations
                         name: "FK_Claim_Order_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Order",
-                        principalColumn: "OrderId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "OrderId");
                 });
 
             migrationBuilder.CreateTable(
@@ -188,14 +187,12 @@ namespace CompliantManager.Server.Data.Migrations
                         name: "FK_ClaimItem_Claim_ClaimId",
                         column: x => x.ClaimId,
                         principalTable: "Claim",
-                        principalColumn: "ClaimId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ClaimId");
                     table.ForeignKey(
                         name: "FK_ClaimItem_OrderItem_OrderItemId",
                         column: x => x.OrderItemId,
                         principalTable: "OrderItem",
-                        principalColumn: "OrderItemId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "OrderItemId");
                 });
 
             migrationBuilder.CreateIndex(

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CompliantManager.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250615154846_AddedTables")]
+    [Migration("20250615160445_AddedTables")]
     partial class AddedTables
     {
         /// <inheritdoc />
@@ -251,7 +251,7 @@ namespace CompliantManager.Server.Data.Migrations
                     b.HasOne("CompliantManager.Shared.Entities.Order", "Order")
                         .WithMany("Claims")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Order");
@@ -262,13 +262,13 @@ namespace CompliantManager.Server.Data.Migrations
                     b.HasOne("CompliantManager.Shared.Entities.Claim", "Claim")
                         .WithMany("ClaimItems")
                         .HasForeignKey("ClaimId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("CompliantManager.Shared.Entities.OrderItem", "OrderItem")
                         .WithMany("ClaimItems")
                         .HasForeignKey("OrderItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Claim");

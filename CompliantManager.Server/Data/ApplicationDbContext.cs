@@ -58,7 +58,8 @@ namespace CompliantManager.Server.Data
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.Claims)
                 .WithOne(c => c.Order)
-                .HasForeignKey(c => c.OrderId);
+                .HasForeignKey(c => c.OrderId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             // OrderItem  
             modelBuilder.Entity<OrderItem>()
@@ -66,7 +67,8 @@ namespace CompliantManager.Server.Data
             modelBuilder.Entity<OrderItem>()
                 .HasMany(oi => oi.ClaimItems)
                 .WithOne(ci => ci.OrderItem)
-                .HasForeignKey(ci => ci.OrderItemId);
+                .HasForeignKey(ci => ci.OrderItemId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             // Claim  
             modelBuilder.Entity<Claim>()
@@ -74,7 +76,8 @@ namespace CompliantManager.Server.Data
             modelBuilder.Entity<Claim>()
                 .HasMany(c => c.ClaimItems)
                 .WithOne(ci => ci.Claim)
-                .HasForeignKey(ci => ci.ClaimId);
+                .HasForeignKey(ci => ci.ClaimId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             // ClaimItem  
             modelBuilder.Entity<ClaimItem>()
