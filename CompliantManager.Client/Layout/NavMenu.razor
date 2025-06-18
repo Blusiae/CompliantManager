@@ -1,0 +1,10 @@
+﻿<MudNavMenu>
+    <MudNavLink Href="/" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+    <MudNavGroup Title="Zgłoszenia" Expanded="true">
+        <MudNavLink Href="/claims/my" Match="NavLinkMatch.Prefix" Disabled="true">Moje</MudNavLink>
+        <MudNavLink Href="/claims/active" Match="NavLinkMatch.Prefix">Aktywne</MudNavLink>
+        <MudNavLink Href="/claims/all" Match="NavLinkMatch.Prefix">Wszystkie</MudNavLink>
+        <MudNavLink Href="/claims/archived" Match="NavLinkMatch.Prefix">Archiwalne</MudNavLink>
+    </MudNavGroup>
+    <MudNavLink Href="/customers" Match="NavLinkMatch.All">Klienci</MudNavLink>
+</MudNavMenu>
