@@ -9,6 +9,5 @@
         public string Status { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime? CompletedOn { get; set; }
-        public IEnumerable<ClaimItem> ClaimItems { get; set; }
     }
 }

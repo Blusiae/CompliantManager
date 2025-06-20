@@ -4,6 +4,7 @@ using CompliantManager.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CompliantManager.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250619131755_RemovedClaimItems")]
+    partial class RemovedClaimItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace CompliantManager.Server.Data.Migrations
 
                     b.HasKey("AddressId");
 
-                    b.ToTable("Address", (string)null);
+                    b.ToTable("Address");
                 });
 
             modelBuilder.Entity("CompliantManager.Shared.Entities.Claim", b =>
@@ -84,7 +87,7 @@ namespace CompliantManager.Server.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Claim", (string)null);
+                    b.ToTable("Claim");
                 });
 
             modelBuilder.Entity("CompliantManager.Shared.Entities.Customer", b =>
@@ -118,7 +121,7 @@ namespace CompliantManager.Server.Data.Migrations
 
                     b.HasIndex("AddressId");
 
-                    b.ToTable("Customer", (string)null);
+                    b.ToTable("Customer");
                 });
 
             modelBuilder.Entity("CompliantManager.Shared.Entities.NotificationMethod", b =>
@@ -135,7 +138,7 @@ namespace CompliantManager.Server.Data.Migrations
 
                     b.HasKey("NotificationMethodId");
 
-                    b.ToTable("NotificationMethod", (string)null);
+                    b.ToTable("NotificationMethod");
                 });
 
             modelBuilder.Entity("CompliantManager.Shared.Entities.Order", b =>
@@ -156,7 +159,7 @@ namespace CompliantManager.Server.Data.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Order", (string)null);
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("CompliantManager.Shared.Entities.OrderItem", b =>
@@ -185,7 +188,7 @@ namespace CompliantManager.Server.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItem", (string)null);
+                    b.ToTable("OrderItem");
                 });
 
             modelBuilder.Entity("CompliantManager.Shared.Entities.PreferedNotificationMethod", b =>
@@ -200,7 +203,7 @@ namespace CompliantManager.Server.Data.Migrations
 
                     b.HasIndex("NotificationMethodId");
 
-                    b.ToTable("PreferedNotificationMethod", (string)null);
+                    b.ToTable("PreferedNotificationMethod");
                 });
 
             modelBuilder.Entity("CompliantManager.Shared.Entities.Product", b =>
@@ -217,7 +220,7 @@ namespace CompliantManager.Server.Data.Migrations
 
                     b.HasKey("ProductId");
 
-                    b.ToTable("Product", (string)null);
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("CompliantManager.Shared.Entities.Claim", b =>

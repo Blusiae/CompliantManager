@@ -12,7 +12,7 @@ namespace CompliantManager.Server.Data
 
         public DbSet<Address> Addresses;
         public DbSet<Claim> Claims;
-        public DbSet<ClaimItem> ClaimItems;
+        //public DbSet<ClaimItem> ClaimItems;
         public DbSet<Customer> Customers;
         public DbSet<NotificationMethod> NotificationMethods;
         public DbSet<Order> Orders;
@@ -64,24 +64,10 @@ namespace CompliantManager.Server.Data
             // OrderItem  
             modelBuilder.Entity<OrderItem>()
                 .HasKey(oi => oi.OrderItemId);
-            modelBuilder.Entity<OrderItem>()
-                .HasMany(oi => oi.ClaimItems)
-                .WithOne(ci => ci.OrderItem)
-                .HasForeignKey(ci => ci.OrderItemId)
-                .OnDelete(DeleteBehavior.NoAction);
 
             // Claim  
             modelBuilder.Entity<Claim>()
                 .HasKey(c => c.ClaimId);
-            modelBuilder.Entity<Claim>()
-                .HasMany(c => c.ClaimItems)
-                .WithOne(ci => ci.Claim)
-                .HasForeignKey(ci => ci.ClaimId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            // ClaimItem  
-            modelBuilder.Entity<ClaimItem>()
-                .HasKey(ci => ci.ClaimItemId);
 
             // NotificationMethod  
             modelBuilder.Entity<NotificationMethod>()
