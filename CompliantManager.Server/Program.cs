@@ -1,5 +1,6 @@
 using CompliantManager.Server.Data;
-using CompliantManager.Server.Services;
+using CompliantManager.Server.Services.Implementations;
+using CompliantManager.Server.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
