@@ -1,8 +1,10 @@
 ﻿@page "/claim/{id}"
+@using Microsoft.AspNetCore.WebUtilities;
+@inject NavigationManager Navigation
 
 <MudPaper Elevation="25">
     <MudToolBar>
-        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" />
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" OnClick="@(() => Navigation.NavigateTo($"/claims/{_listMode}"))" />
         <MudButton StartIcon="@Icons.Material.Filled.Save">Zapisz</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Delete">Usuń</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Person">Przejmij</MudButton>
@@ -10,7 +12,7 @@
 </MudPaper>
 
 <MudPaper Class="mt-5 pa-5">
-    <MudContainer Class="d-flex px-0">
+    <MudContainer Class="d-flex ms-0 px-0">
         <MudText Typo="Typo.h5" Class="mt-1">Zgłoszenie #@Id</MudText>
         <MudChip T="string" Variant="Variant.Text" Color="Color.Success" Class="mx-3">Aktywne</MudChip>
     </MudContainer>
@@ -46,4 +48,18 @@
 @code {
     [Parameter]
     public string Id { get; set; }
+
+    private string _listMode = "active";
+
+    protected override void OnInitialized()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("listMode", out var listMode))
+        {
+            _listMode = listMode;
+        }
+
+
+        base.OnInitialized();
+    }
 }

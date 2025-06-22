@@ -1,8 +1,116 @@
 ﻿@page "/claims/{mode}"
+@using CompliantManager.Client.Enums
+@using CompliantManager.Client.Helpers
+@inject NavigationManager Navigation
 
-<h3>Claims</h3>
+<PageTitle>Zgłoszenia</PageTitle>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper Elevation="25" Class="mb-5">
+        <MudToolBar>
+            <MudButton StartIcon="@Icons.Material.Filled.Edit" Disabled="_dataGrid?.SelectedItems?.Count != 1" OnClick="Edit">Edytuj</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="_dataGrid?.SelectedItems?.Count == 0">Usuń</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Person" Disabled="_dataGrid?.SelectedItems?.Count == 0">Przejmij</MudButton>
+        </MudToolBar>
+    </MudPaper>
+
+    <MudDataGrid ServerData="LoadGridData" T="ClaimDto" @ref="_dataGrid" Class="mt-5" SortMode="SortMode.None" MultiSelection="true" SelectedItemsChanged="StateHasChanged">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">@_listMode.ToString() zgłoszenia</MudText>
+            <MudSpacer />
+            <MudTextField Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <Columns>
+            <SelectColumn T="ClaimDto" />
+            <PropertyColumn Property="@(c => c.Id)" Title="Id" />
+            <PropertyColumn Property="@(c => c.Name)" Title="Status" />
+            <PropertyColumn Property="@(c => c.Name)" Title="Zgłaszający" />
+            <PropertyColumn Property="@(c => c.Name)" Title="Odpowiedzialny" />
+            <PropertyColumn Property="@(c => c.Name)" Title="Data zgłoszenia" />
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="ClaimDto" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
 
 @code {
+
+    private MudDataGrid<ClaimDto> _dataGrid = new();
+
+    public class ClaimDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
     [Parameter]
     public string Mode { get; set; }
+
+    private ListMode _listMode;
+
+    protected override void OnParametersSet()
+    {
+        if (Enum.TryParse(Mode, ignoreCase: true, out ListMode listMode))
+        {
+            _listMode = listMode;
+        }
+        else
+        {
+            _listMode = ListMode.Aktywne;
+        }
+    }
+
+    private async Task<List<ClaimDto>> GetClaims(int pageSize, int currentPage)
+    {
+        //return await _factService.GetFacts(pageSize, pageSize * currentPage);
+        return new List<ClaimDto>
+        {
+            new ClaimDto { Id = 1, Name = "Lorem ipsum" },
+            new ClaimDto { Id = 2, Name = "Lorem ipsum" },
+            new ClaimDto { Id = 3, Name = "Lorem ipsum" },
+            new ClaimDto { Id = 4, Name = "Lorem ipsum" },
+            new ClaimDto { Id = 5, Name = "Lorem ipsum" },
+            new ClaimDto { Id = 1, Name = "Lorem ipsum" },
+            new ClaimDto { Id = 2, Name = "Lorem ipsum" },
+            new ClaimDto { Id = 3, Name = "Lorem ipsum" },
+            new ClaimDto { Id = 4, Name = "Lorem ipsum" },
+            new ClaimDto { Id = 5, Name = "Lorem ipsum" }
+
+        };
+    }
+
+    private async Task<int> GetClaimsCount()
+    {
+        //return await _factService.GetFactsCount();
+        return 10;
+    }
+
+    private async Task<GridData<ClaimDto>> LoadGridData(GridState<ClaimDto> state)
+    {
+        var currentPage = state.Page;
+        var pageSize = state.PageSize;
+
+        var facts = await GetClaims(pageSize, currentPage);
+        var factsCount = await GetClaimsCount();
+
+        GridData<ClaimDto> data = new()
+        {
+            Items = facts,
+            TotalItems = factsCount
+        };
+
+        return data;
+    }
+
+    private void Edit()
+    {
+        var id = _dataGrid?.SelectedItems?.SingleOrDefault()?.Id;
+
+        if(id is not null)
+        {
+            Navigation.NavigateTo($"/claim/{id}?listMode={_listMode.ToString().ToLower()}");
+        }
+    }
 }
