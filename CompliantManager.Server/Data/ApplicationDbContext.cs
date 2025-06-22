@@ -1,24 +1,17 @@
-﻿using CompliantManager.Shared.Entities;
+﻿using CompliantManager.Server.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CompliantManager.Server.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
-
-        public DbSet<Address> Addresses;
-        public DbSet<Claim> Claims;
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Claim> Claims { get; set; }
         //public DbSet<ClaimItem> ClaimItems;
-        public DbSet<Customer> Customers;
-        public DbSet<NotificationMethod> NotificationMethods;
-        public DbSet<Order> Orders;
-        public DbSet<OrderItem> OrderItems;
-        public DbSet<Product> Products;
-        public DbSet<PreferedNotificationMethod> PreferedNotificationMethods; 
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -68,22 +61,6 @@ namespace CompliantManager.Server.Data
             // Claim  
             modelBuilder.Entity<Claim>()
                 .HasKey(c => c.ClaimId);
-
-            // NotificationMethod  
-            modelBuilder.Entity<NotificationMethod>()
-                .HasKey(nm => nm.NotificationMethodId);
-
-            // Many-to-Many: Customer <-> NotificationMethod (via PreferedNotificationMethod)  
-            modelBuilder.Entity<PreferedNotificationMethod>()
-                .HasKey(pnm => new { pnm.CustomerId, pnm.NotificationMethodId });
-            modelBuilder.Entity<PreferedNotificationMethod>()
-                .HasOne(pnm => pnm.Customer)
-                .WithMany(c => c.PreferedNotificationMethods)
-                .HasForeignKey(pnm => pnm.CustomerId);
-            modelBuilder.Entity<PreferedNotificationMethod>()
-                .HasOne(pnm => pnm.NotificationMethod)
-                .WithMany(nm => nm.PreferedNotificationMethods)
-                .HasForeignKey(pnm => pnm.NotificationMethodId);
         }
     }
 }

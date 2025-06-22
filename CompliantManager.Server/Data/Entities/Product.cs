@@ -1,4 +1,4 @@
-﻿namespace CompliantManager.Shared.Entities
+﻿namespace CompliantManager.Server.Data.Entities
 {
     public class Product
     {

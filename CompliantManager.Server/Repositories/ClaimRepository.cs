@@ -1,5 +1,5 @@
 ﻿using CompliantManager.Server.Data;
-using CompliantManager.Shared.Entities;
+using CompliantManager.Server.Data.Entities;
 using CompliantManager.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

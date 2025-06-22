@@ -1,4 +1,4 @@
-﻿namespace CompliantManager.Shared.Entities
+﻿namespace CompliantManager.Server.Data.Entities
 {
     public class Customer
     {
@@ -9,7 +9,7 @@
         public string PhoneNumber { get; set; }
         public int AddressId { get; set; }
         public Address Address { get; set; }
+        public bool NotificationsEnabled { get; set; }
         public IEnumerable<Order> Orders { get; set; }
-        public IEnumerable<PreferedNotificationMethod> PreferedNotificationMethods { get; set; }
     }
 }
