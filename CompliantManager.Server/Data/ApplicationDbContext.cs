@@ -19,7 +19,7 @@ namespace CompliantManager.Server.Data
 
             // Address  
             modelBuilder.Entity<Address>()
-                .HasKey(a => a.AddressId);
+                .HasKey(a => a.Id);
             modelBuilder.Entity<Address>()
                 .HasMany(a => a.Customers)
                 .WithOne(c => c.Address)
@@ -27,7 +27,7 @@ namespace CompliantManager.Server.Data
 
             // Customer  
             modelBuilder.Entity<Customer>()
-                .HasKey(c => c.CustomerId);
+                .HasKey(c => c.Id);
             modelBuilder.Entity<Customer>()
                 .HasMany(c => c.Orders)
                 .WithOne(o => o.Customer)
@@ -35,7 +35,7 @@ namespace CompliantManager.Server.Data
 
             // Product  
             modelBuilder.Entity<Product>()
-                .HasKey(p => p.ProductId);
+                .HasKey(p => p.Id);
             modelBuilder.Entity<Product>()
                 .HasMany(p => p.OrderItems)
                 .WithOne(oi => oi.Product)
@@ -43,7 +43,7 @@ namespace CompliantManager.Server.Data
 
             // Order  
             modelBuilder.Entity<Order>()
-                .HasKey(o => o.OrderId);
+                .HasKey(o => o.Id);
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.OrderItems)
                 .WithOne(oi => oi.Order)
@@ -56,11 +56,11 @@ namespace CompliantManager.Server.Data
 
             // OrderItem  
             modelBuilder.Entity<OrderItem>()
-                .HasKey(oi => oi.OrderItemId);
+                .HasKey(oi => oi.Id);
 
             // Claim  
             modelBuilder.Entity<Claim>()
-                .HasKey(c => c.ClaimId);
+                .HasKey(c => c.Id);
         }
     }
 }

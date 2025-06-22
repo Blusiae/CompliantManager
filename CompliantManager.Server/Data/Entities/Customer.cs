@@ -1,8 +1,7 @@
 ﻿namespace CompliantManager.Server.Data.Entities
 {
-    public class Customer
+    public class Customer : Entity
     {
-        public int CustomerId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; } 
         public string Email { get; set; }

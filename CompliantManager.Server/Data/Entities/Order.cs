@@ -1,8 +1,7 @@
 ﻿namespace CompliantManager.Server.Data.Entities
 {
-    public class Order
+    public class Order : Entity
     {
-        public int OrderId { get; set; }
         public int CustomerId { get; set; }
         public Customer? Customer { get; set; }
         public DateTime OrderDate { get; set; }
