@@ -4,6 +4,7 @@ using CompliantManager.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CompliantManager.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250619131755_RemovedClaimItems")]
+    partial class RemovedClaimItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,13 +25,13 @@ namespace CompliantManager.Server.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Address", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Address", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("AddressId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AddressId"));
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -50,18 +53,18 @@ namespace CompliantManager.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("AddressId");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Address");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Claim", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Claim", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ClaimId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClaimId"));
 
                     b.Property<DateTime?>("CompletedOn")
                         .HasColumnType("datetime2");
@@ -80,20 +83,20 @@ namespace CompliantManager.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ClaimId");
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Claims");
+                    b.ToTable("Claim");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Customer", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Customer", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CustomerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
 
                     b.Property<int>("AddressId")
                         .HasColumnType("int");
@@ -110,27 +113,41 @@ namespace CompliantManager.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("NotificationsEnabled")
-                        .HasColumnType("bit");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CustomerId");
 
                     b.HasIndex("AddressId");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customer");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Order", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.NotificationMethod", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("NotificationMethodId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationMethodId"));
+
+                    b.Property<string>("NotificationMethodName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("NotificationMethodId");
+
+                    b.ToTable("NotificationMethod");
+                });
+
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Order", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -138,20 +155,20 @@ namespace CompliantManager.Server.Data.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("OrderId");
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Order");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.OrderItem", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.OrderItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("OrderItemId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemId"));
 
                     b.Property<int>("FaultyQuantity")
                         .HasColumnType("int");
@@ -165,35 +182,50 @@ namespace CompliantManager.Server.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("OrderItemId");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItem");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Product", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.PreferedNotificationMethod", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NotificationMethodId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomerId", "NotificationMethodId");
+
+                    b.HasIndex("NotificationMethodId");
+
+                    b.ToTable("PreferedNotificationMethod");
+                });
+
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Product", b =>
+                {
+                    b.Property<int>("ProductId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ProductId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Product");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Claim", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Claim", b =>
                 {
-                    b.HasOne("CompliantManager.Server.Data.Entities.Order", "Order")
+                    b.HasOne("CompliantManager.Shared.Entities.Order", "Order")
                         .WithMany("Claims")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -202,9 +234,9 @@ namespace CompliantManager.Server.Data.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Customer", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Customer", b =>
                 {
-                    b.HasOne("CompliantManager.Server.Data.Entities.Address", "Address")
+                    b.HasOne("CompliantManager.Shared.Entities.Address", "Address")
                         .WithMany("Customers")
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -213,9 +245,9 @@ namespace CompliantManager.Server.Data.Migrations
                     b.Navigation("Address");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Order", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Order", b =>
                 {
-                    b.HasOne("CompliantManager.Server.Data.Entities.Customer", "Customer")
+                    b.HasOne("CompliantManager.Shared.Entities.Customer", "Customer")
                         .WithMany("Orders")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -224,15 +256,15 @@ namespace CompliantManager.Server.Data.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.OrderItem", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.OrderItem", b =>
                 {
-                    b.HasOne("CompliantManager.Server.Data.Entities.Order", "Order")
+                    b.HasOne("CompliantManager.Shared.Entities.Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CompliantManager.Server.Data.Entities.Product", "Product")
+                    b.HasOne("CompliantManager.Shared.Entities.Product", "Product")
                         .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -243,24 +275,50 @@ namespace CompliantManager.Server.Data.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Address", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.PreferedNotificationMethod", b =>
+                {
+                    b.HasOne("CompliantManager.Shared.Entities.Customer", "Customer")
+                        .WithMany("PreferedNotificationMethods")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CompliantManager.Shared.Entities.NotificationMethod", "NotificationMethod")
+                        .WithMany("PreferedNotificationMethods")
+                        .HasForeignKey("NotificationMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("NotificationMethod");
+                });
+
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Address", b =>
                 {
                     b.Navigation("Customers");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Customer", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Customer", b =>
                 {
                     b.Navigation("Orders");
+
+                    b.Navigation("PreferedNotificationMethods");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Order", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.NotificationMethod", b =>
+                {
+                    b.Navigation("PreferedNotificationMethods");
+                });
+
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Order", b =>
                 {
                     b.Navigation("Claims");
 
                     b.Navigation("OrderItems");
                 });
 
-            modelBuilder.Entity("CompliantManager.Server.Data.Entities.Product", b =>
+            modelBuilder.Entity("CompliantManager.Shared.Entities.Product", b =>
                 {
                     b.Navigation("OrderItems");
                 });
