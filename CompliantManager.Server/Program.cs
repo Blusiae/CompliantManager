@@ -1,5 +1,6 @@
 using CompliantManager.Server.Data;
-using CompliantManager.Server.Services;
+using CompliantManager.Server.Services.Implementations;
+using CompliantManager.Server.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +12,6 @@ builder.Services.AddRazorPages();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddTransient<IMailingService, MailingService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=.;Database=CompliantManagerDB;Trusted_Connection=True;Encrypt=False;"));
 

@@ -1,7 +1,8 @@
 ﻿using Azure;
 using Azure.Communication.Email;
+using CompliantManager.Server.Services.Interfaces;
 
-namespace CompliantManager.Server.Services
+namespace CompliantManager.Server.Services.Implementations
 {
     public class MailingService(string connectionString) : IMailingService
     {

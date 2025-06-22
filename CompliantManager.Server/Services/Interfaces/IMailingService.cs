@@ -1,5 +1,4 @@
-﻿
-namespace CompliantManager.Server.Services
+﻿namespace CompliantManager.Server.Services.Interfaces
 {
     public interface IMailingService
     {
