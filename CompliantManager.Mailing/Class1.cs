@@ -35,7 +35,7 @@ namespace CompliantManager.Mailing
             Html = @"
 		            <html>
 			            <body>
-				            <h1>Teścik</h1>
+				            <h1>Teścik 22</h1>
 			            </body>
 		            </html>"
             },
