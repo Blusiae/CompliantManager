@@ -4,7 +4,7 @@
     {
         public int ClaimId { get; set; }
         public int OrderId { get; set; }
-        public Order Order { get; set; }
+        public Order? Order { get; set; }
         public string ExpectedAction { get; set; }
         public string Status { get; set; }
         public DateTime CreatedOn { get; set; }
