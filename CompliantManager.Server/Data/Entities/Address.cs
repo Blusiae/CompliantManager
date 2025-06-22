@@ -1,8 +1,7 @@
 ﻿namespace CompliantManager.Server.Data.Entities
 {
-    public class Address
+    public class Address : Entity
     {
-        public int AddressId { get; set; }
         public string Street { get; set; } = default!;
         public string HouseNumber { get; set; }
         public string City { get; set; }

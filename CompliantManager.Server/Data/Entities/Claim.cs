@@ -1,8 +1,7 @@
 ﻿namespace CompliantManager.Server.Data.Entities
 {
-    public class Claim
+    public class Claim : Entity
     {
-        public int ClaimId { get; set; }
         public int OrderId { get; set; }
         public Order? Order { get; set; }
         public string ExpectedAction { get; set; }
