@@ -4,7 +4,7 @@ namespace CompliantManager.Server.Services.Interfaces
 {
     public interface IClaimService
     {
-        Task<Claim> GetById(int id);
+        Task<Claim?> GetById(int id);
         Task<List<Claim>> GetAll();
         Task Create(Claim claim);
         Task<bool> Edit(Claim claim);

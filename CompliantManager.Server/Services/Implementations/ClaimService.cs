@@ -4,9 +4,10 @@ using CompliantManager.Server.Services.Interfaces;
 
 namespace CompliantManager.Server.Services.Implementations
 {
-    public class ClaimService(IClaimRepository claimRepository) : IClaimService
+    public class ClaimService(IClaimRepository claimRepository, ICustomerRepository customerRepository) : IClaimService
     {
         private readonly IClaimRepository _claimRepository = claimRepository;
+        private readonly ICustomerRepository _customerRepository = customerRepository;
         public async Task Create(Claim claim)
         {
             await _claimRepository.CreateAsync(claim);
@@ -38,7 +39,7 @@ namespace CompliantManager.Server.Services.Implementations
 
         public Task<List<Claim>> GetAll()
         {
-            return _claimRepository.GetAllAsync(includes: x => x.Order);
+            return _claimRepository.GetAllAsync();
         }
 
         public async Task<List<Claim>> GetByCustomerId(int customerId)
@@ -51,9 +52,15 @@ namespace CompliantManager.Server.Services.Implementations
                 .ToList();
         }
 
-        public Task<Claim> GetById(int id)
+        public async Task<Claim?> GetById(int id)
         {
-            return _claimRepository.GetByIdAsync(id, includes: x => x.Order);
+            var claim = await _claimRepository.GetByIdAsync(id, includes: x => x.Order);
+
+            if (claim?.Order != null)
+            {
+                claim.Order.Customer = await _customerRepository.GetByIdAsync(claim.Order.CustomerId);
+            }
+            return claim;
         }
 
         public async Task<bool> SetStatus(int id, string status)

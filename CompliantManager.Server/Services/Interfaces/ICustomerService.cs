@@ -4,7 +4,7 @@ namespace CompliantManager.Server.Services.Interfaces
 {
     public interface ICustomerService
     {
-        Task<Customer> GetById(int id);
+        Task<Customer?> GetById(int id);
         Task<List<Customer>> GetAll();
         Task Create(Customer customer);
         Task<bool> Edit(Customer customer);

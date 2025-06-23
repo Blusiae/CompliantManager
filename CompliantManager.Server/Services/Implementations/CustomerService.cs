@@ -45,7 +45,7 @@ namespace CompliantManager.Server.Services.Implementations
             return await _customerRepository.GetAllAsync();
         }
 
-        public async Task<Customer> GetById(int id)
+        public async Task<Customer?> GetById(int id)
         {
             return await _customerRepository.GetByIdAsync(id, includes: x => x.Address);
         }
