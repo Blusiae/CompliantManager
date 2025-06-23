@@ -6,7 +6,7 @@ namespace CompliantManager.Server.Services.Interfaces
     {
         Task<Claim> GetById(int id);
         Task<List<Claim>> GetAll();
-        Task<Claim> Create(Claim claim);
+        Task Create(Claim claim);
         Task<bool> Edit(Claim claim);
         Task<bool> Delete(int id);
         Task<List<Claim>> GetByCustomerId(int customerId);
