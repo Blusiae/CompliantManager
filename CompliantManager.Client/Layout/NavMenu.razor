@@ -9,4 +9,5 @@
         <MudNavLink Href="@NavigationHelper.GetListModeQueryString("claims", ListMode.Nieaktywne)" Match="NavLinkMatch.Prefix">Nieaktywne</MudNavLink>
     </MudNavGroup>
     <MudNavLink Href="/customers" Match="NavLinkMatch.All">Klienci</MudNavLink>
+    <AuthorizeView Roles="Administrator"><MudNavLink Href="/users" Match="NavLinkMatch.All">Użytkownicy</MudNavLink></AuthorizeView>
 </MudNavMenu>

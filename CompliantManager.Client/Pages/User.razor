@@ -1,22 +1,22 @@
-﻿@page "/claim/{id}"
+﻿@page "/user/{id}"
 @using Microsoft.AspNetCore.WebUtilities;
 @inject NavigationManager Navigation
+@attribute [Authorize(Roles = "Administrator")]
 
 <MudPaper Elevation="25">
     <MudToolBar>
-        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" OnClick="@(() => Navigation.NavigateTo($"/claims/{_listMode}"))" />
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" OnClick="@(() => Navigation.NavigateTo($"/users"))" />
         <MudButton StartIcon="@Icons.Material.Filled.Save">Zapisz</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Delete">Usuń</MudButton>
-        <MudButton StartIcon="@Icons.Material.Filled.Person">Przejmij</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Upgrade">Awansuj</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Upgrade">Degraduj</MudButton>
     </MudToolBar>
 </MudPaper>
 
 <MudPaper Class="mt-5 pa-5">
     <MudContainer Class="d-flex ms-0 px-0">
-        <MudText Typo="Typo.h5" Class="mt-1">Zgłoszenie #@Id</MudText>
-        <MudChip T="string" Variant="Variant.Text" Color="Color.Success" Class="mx-3">Aktywne</MudChip>
+        <MudText Typo="Typo.h5" Class="mt-1">@(Id is null ? "Nowy użytkownik" : $"{_user.FirstName} {_user.LastName}")</MudText>
     </MudContainer>
-    <MudText Typo="Typo.overline">Odpowiedzialny: Imię Nazwisko</MudText>
     <MudGrid Class="mt-1">
         <MudItem md="4">
             <MudCard Class="py-2" Elevation="1">
@@ -30,13 +30,13 @@
                 </MudCardHeader>
                 <MudCardContent Style="padding-top: 0;">
                     <MudTextField Label="Imię"
-                                  T="string" />
+                                  T="string" @bind-Value="_user.FirstName" />
                     <MudTextField Label="Nazwisko" Class="mt-3"
-                                  T="string" />
+                                  T="string" @bind-Value="_user.LastName" />
                     <MudTextField Label="Adres e-mail" Class="mt-3"
-                                  T="string" />
-                    <MudTextField Label="Numer telefonu" Class="mt-3"
-                                  T="string" />
+                                  T="string" @bind-Value="_user.Email" />
+                    <MudSwitch Label="Uprawnienia administratora" Class="mt-3"
+                                  @bind-Value="_user.IsAdministrator" />
                 </MudCardContent>
             </MudCard>
         </MudItem>
@@ -47,18 +47,16 @@
 
 @code {
     [Parameter]
-    public string? Id { get; set; } // jesli null to znaczy ze jest to nowy claim
+    public string? Id { get; set; }
 
-    private string _listMode = "active";
+    UserDto _user = new();
 
     protected override void OnInitialized()
     {
-        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("listMode", out var listMode))
+        if (Id is not null)
         {
-            _listMode = listMode;
+            // pobranie danych
         }
-
 
         base.OnInitialized();
     }

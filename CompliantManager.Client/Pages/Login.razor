@@ -1,0 +1,92 @@
+﻿@page "/login"
+@layout EmptyLayout
+@using System.Net.Http.Headers
+@using CompliantManager.Client.Authentication
+@using CompliantManager.Shared.Dtos
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthProvider
+@inject ISnackbar Snackbar
+@attribute [AllowAnonymous]
+
+<PageTitle>Zaloguj się</PageTitle>
+
+<MudContainer Class="d-flex justify-center align-center" Style="height: 100vh;">
+    <MudPaper Elevation="6" Class="pa-6" Style="min-width: 320px; width: 100%; max-width: 400px;">
+        <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-4">Zaloguj się</MudText>
+
+        <MudForm @ref="form">
+            <MudTextField @bind-Value="_login.Email"
+                          Label="E-mail"
+                          Required="true"
+                          For="@(() => _login.Email)"
+                          ErrorText="E-mail jest wymagany" />
+
+            <MudTextField @bind-Value="_login.Password"
+                          Label="Hasło"
+                          InputType="InputType.Password"
+                          Required="true"
+                          For="@(() => _login.Password)" 
+                          ErrorText="Hasło jest wymagane" />
+
+            <div class="d-flex justify-center mt-4">
+                <MudButton Type="Submit"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="HandleLogin">
+                    Zaloguj
+                </MudButton>
+            </div>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+
+@code {
+    private LoginDto _login = new();
+    private string? errorMessage;
+    private MudForm form = new();
+
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            await form.Validate();
+
+            if (!form.IsValid)
+            {
+                errorMessage = "Podaj e-mail i hasło.";
+                return;
+            }
+
+            var response = await Http.PostAsJsonAsync("api/auth/login", _login);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                if (result?.Token is not null)
+                {
+                    await LocalStorage.SetItemAsync("authToken", result.Token);
+                    ((JwtAuthStateProvider)AuthProvider).NotifyUserAuthentication(result.Token);
+                    Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Token);
+                    Navigation.NavigateTo("/");
+                }
+            }
+            else
+            {
+                Snackbar.Add("Nieprawidłowy e-mail lub hasło.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Błąd logowania: {ex.Message}", Severity.Error);
+        }
+    }
+
+    public class LoginResponse
+    {
+        public string Token { get; set; } = "";
+    }
+}

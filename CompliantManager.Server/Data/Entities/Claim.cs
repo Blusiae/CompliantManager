@@ -8,5 +8,7 @@
         public string Status { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime? CompletedOn { get; set; }
+        public Guid? ConsultantId { get; set; }
+        public ApplicationUser? Consultant { get; set; }
     }
 }

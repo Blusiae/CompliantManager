@@ -1,9 +1,11 @@
 ﻿using CompliantManager.Server.Data.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CompliantManager.Server.Data
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>(options)
     {
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Claim> Claims { get; set; }
@@ -16,50 +18,40 @@ namespace CompliantManager.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Address  
-            modelBuilder.Entity<Address>()
-                .HasKey(a => a.Id);
             modelBuilder.Entity<Address>()
                 .HasMany(a => a.Customers)
                 .WithOne(c => c.Address)
                 .HasForeignKey(c => c.AddressId);
 
-            // Customer  
-            modelBuilder.Entity<Customer>()
-                .HasKey(c => c.Id);
             modelBuilder.Entity<Customer>()
                 .HasMany(c => c.Orders)
                 .WithOne(o => o.Customer)
                 .HasForeignKey(o => o.CustomerId);
 
-            // Product  
-            modelBuilder.Entity<Product>()
-                .HasKey(p => p.Id);
             modelBuilder.Entity<Product>()
                 .HasMany(p => p.OrderItems)
                 .WithOne(oi => oi.Product)
                 .HasForeignKey(oi => oi.ProductId);
 
-            // Order  
-            modelBuilder.Entity<Order>()
-                .HasKey(o => o.Id);
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.OrderItems)
                 .WithOne(oi => oi.Order)
                 .HasForeignKey(oi => oi.OrderId);
+
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.Claims)
                 .WithOne(c => c.Order)
                 .HasForeignKey(c => c.OrderId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // OrderItem  
             modelBuilder.Entity<OrderItem>()
                 .HasKey(oi => oi.Id);
 
-            // Claim  
             modelBuilder.Entity<Claim>()
-                .HasKey(c => c.Id);
+                .HasOne(c => c.Consultant)
+                .WithMany(c => c.Claims)
+                .HasForeignKey(c => c.ConsultantId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
