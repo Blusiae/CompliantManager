@@ -5,7 +5,6 @@
 @using CompliantManager.Shared.Dtos
 @inject HttpClient Http
 @inject ILocalStorageService LocalStorage
-@inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
 @inject ISnackbar Snackbar
 @attribute [AllowAnonymous]
@@ -21,14 +20,14 @@
                           Label="E-mail"
                           Required="true"
                           For="@(() => _login.Email)"
-                          ErrorText="E-mail jest wymagany" />
+                          ErrorText="E-mail jest wymagany" Class="mt-2" />
 
             <MudTextField @bind-Value="_login.Password"
                           Label="Hasło"
                           InputType="InputType.Password"
                           Required="true"
                           For="@(() => _login.Password)" 
-                          ErrorText="Hasło jest wymagane" />
+                          ErrorText="Hasło jest wymagane" Class="mt-2" />
 
             <div class="d-flex justify-center mt-4">
                 <MudButton Type="Submit"
@@ -68,8 +67,7 @@
                 var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
                 if (result?.Token is not null)
                 {
-                    await LocalStorage.SetItemAsync("authToken", result.Token);
-                    ((JwtAuthStateProvider)AuthProvider).NotifyUserAuthentication(result.Token);
+                    await ((JwtAuthStateProvider)AuthProvider).MarkUserAsAuthenticated(result.Token);
                     Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Token);
                     Navigation.NavigateTo("/");
                 }

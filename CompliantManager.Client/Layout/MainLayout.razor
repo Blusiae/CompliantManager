@@ -9,6 +9,8 @@
 <MudLayout>
     <MudAppBar>
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        <MudButton EndIcon="@Icons.Material.Filled.Logout" Color="Color.Inherit" OnClick="Logout">Wyloguj</MudButton>
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen">
         <MudDrawerHeader>
@@ -29,5 +31,10 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    void Logout()
+    {
+        Navigation.NavigateTo("/logout");
     }
 }

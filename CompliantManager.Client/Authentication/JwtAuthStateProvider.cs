@@ -1,50 +1,50 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 
 namespace CompliantManager.Client.Authentication
 {
     public class JwtAuthStateProvider(ILocalStorageService storage) : AuthenticationStateProvider
     {
-        private readonly ILocalStorageService _storage = storage;
+        private readonly ILocalStorageService _localStorage = storage;
+        private readonly ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = await _storage.GetItemAsync<string>("authToken");
+            var token = await _localStorage.GetItemAsync<string>("authToken");
 
             if (string.IsNullOrWhiteSpace(token))
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
-            var claims = ParseClaimsFromJwt(token);
-            var identity = new ClaimsIdentity(claims, "jwt");
-            return new AuthenticationState(new ClaimsPrincipal(identity));
-        }
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
 
-        public void NotifyUserAuthentication(string token)
-        {
-            var claims = ParseClaimsFromJwt(token);
-            var identity = new ClaimsIdentity(claims, "jwt");
+            if (jwtToken.ValidTo < DateTime.UtcNow)
+            {
+                await Logout();
+                return new AuthenticationState(_anonymous);
+            }
+
+            var identity = new ClaimsIdentity(jwtToken.Claims, "jwt");
             var user = new ClaimsPrincipal(identity);
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+
+            var timeUntilExpiration = jwtToken.ValidTo - DateTime.UtcNow;
+            _ = new Timer(async _ => await Logout(), null, timeUntilExpiration, Timeout.InfiniteTimeSpan);
+
+            return new AuthenticationState(user);
         }
 
-        public void NotifyUserLogout()
+        public async Task MarkUserAsAuthenticated(string token)
         {
-            var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(anonymous)));
+            await _localStorage.SetItemAsync("authToken", token);
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
 
-        private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+        public async Task Logout()
         {
-            var payload = jwt.Split('.')[1];
-            var json = Encoding.UTF8.GetString(Convert.FromBase64String(PadBase64(payload)));
-            var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(json)!;
-
-            return keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()!));
+            await _localStorage.RemoveItemAsync("authToken");
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
         }
-
-        private static string PadBase64(string base64) => base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=');
     }
 }

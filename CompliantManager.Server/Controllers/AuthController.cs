@@ -20,7 +20,7 @@ namespace CompliantManager.Server.Controllers
 
         [Authorize(Roles = "Administrator")]
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        public async Task<IActionResult> Register(UserDto dto)
         {
             var user = new ApplicationUser { UserName = dto.Email, Email = dto.Email, FirstName = dto.FirstName!, LastName = dto.LastName! };
             var result = await _userManager.CreateAsync(user, dto.Password!);
@@ -28,8 +28,7 @@ namespace CompliantManager.Server.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            await _userManager.AddToRoleAsync(user, "User");
-            return Ok();
+            return Ok(user.Id);
         }
 
         [HttpPost("login")]
