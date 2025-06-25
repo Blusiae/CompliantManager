@@ -1,0 +1,123 @@
+﻿@page "/users"
+@inject NavigationManager Navigation
+@inject IUserService _userService
+@attribute [Authorize(Roles = "Administrator")]
+
+<PageTitle>Użytkownicy</PageTitle>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper Elevation="25" Class="mb-5">
+        <MudToolBar>
+            <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/user"))">Nowy</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Edit" Disabled="_dataGrid?.SelectedItems?.Count != 1" OnClick="Edit">Edytuj</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="_dataGrid?.SelectedItems?.Count == 0" OnClick="DeleteUsers">Usuń</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.ArrowUpward" Disabled="_dataGrid?.SelectedItems?.Count == 0">Awansuj</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.ArrowDownward" Disabled="_dataGrid?.SelectedItems?.Count == 0">Degraduj</MudButton>
+        </MudToolBar>
+    </MudPaper>
+
+    <MudDataGrid ServerData="LoadGridData" T="UserDto" @ref="_dataGrid" Class="mt-5" SortMode="SortMode.None" MultiSelection="true" SelectedItemsChanged="StateHasChanged">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Użytkownicy</MudText>
+            <MudSpacer />
+            <!--<MudTextField @bind-Value="_searchTerm"
+                          Placeholder="Szukaj"
+                          Immediate="true"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          OnBlur="ReloadGrid"
+                          OnKeyUp="@(e => { if (e.Key == "Enter") ReloadGrid(); })" /> -->
+        </ToolBarContent>
+        <Columns>
+            <SelectColumn T="UserDto" />
+            <PropertyColumn Property="@(c => c.FirstName)" Title="Imię" />
+            <PropertyColumn Property="@(c => c.LastName)" Title="Nazwisko" />
+            <PropertyColumn Property="@(c => c.IsAdministrator ? "Tak" : "Nie")" Title="Uprawnienia administratora" />
+            <PropertyColumn Property="@(c => c.Email)" Title="Adres e-mail" />
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="UserDto" />
+        </PagerContent>
+    </MudDataGrid>
+    @if (_dataGrid?.Items?.Count() == 0)
+    {
+        <MudText Class="mt-3" Typo="Typo.body1">Brak użytkowników do wyświetlenia.</MudText>
+    }
+</MudContainer>
+
+
+@code {
+
+    private MudDataGrid<UserDto> _dataGrid = new();
+
+    private string? _searchTerm;
+
+    private async Task<List<UserDto>> GetUsers(int pageSize, int currentPage)
+    {
+        return await _userService.GetUsersAsync(pageSize, pageSize * currentPage);
+    }
+
+    private async Task<int> GetUsersCount()
+    {
+        return await _userService.GetUsersCountAsync();
+    }
+
+    private async Task DeleteUsers()
+    {
+        try
+        {
+            await _userService.DeleteUsersAsync(_dataGrid.SelectedItems.Select(u => u.Id).ToList());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting users: {ex.Message}");
+            Snackbar.Add("Wystąpił błąd podczas usuwania użytkowników.", Severity.Error);
+        }
+        finally
+        {
+            await ReloadGrid();
+        }
+    }
+
+    private async Task<GridData<UserDto>> LoadGridData(GridState<UserDto> state)
+    {
+        var currentPage = state.Page;
+        var pageSize = state.PageSize;
+
+        try
+        {
+            var users = await GetUsers(pageSize, currentPage);
+            var usersCount = await GetUsersCount();
+
+            GridData<UserDto> data = new()
+            {
+                Items = users,
+                TotalItems = usersCount
+            };
+
+            return data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading users: {ex.Message}");
+            Snackbar.Add("Wystąpił błąd podczas pobierania listy użytkowników.", Severity.Error);
+            return new GridData<UserDto> { Items = [], TotalItems = 0 };
+        }
+
+    }
+
+    private void Edit()
+    {
+        var id = _dataGrid?.SelectedItems?.SingleOrDefault()?.Id;
+
+        if (id is not null)
+        {
+            Navigation.NavigateTo($"/user/{id}");
+        }
+    }
+
+    private async Task ReloadGrid()
+    {
+        if (_dataGrid is not null)
+            await _dataGrid.ReloadServerData();
+    }
+}

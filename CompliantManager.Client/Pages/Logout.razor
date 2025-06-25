@@ -1,0 +1,13 @@
+﻿@using CompliantManager.Client.Authentication
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Navigation
+
+@page "/logout"
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ((JwtAuthStateProvider)AuthProvider).Logout();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

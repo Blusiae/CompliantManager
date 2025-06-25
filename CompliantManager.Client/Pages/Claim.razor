@@ -47,7 +47,7 @@
 
 @code {
     [Parameter]
-    public string Id { get; set; }
+    public string? Id { get; set; } // jesli null to znaczy ze jest to nowy claim
 
     private string _listMode = "active";
 

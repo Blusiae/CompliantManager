@@ -9,3 +9,14 @@
 @using CompliantManager.Client
 @using CompliantManager.Client.Layout
 @using MudBlazor
+@using CompliantManager.Client.Components
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using CompliantManager.Client.Services.Interfaces
+@using CompliantManager.Client.Enums
+@using CompliantManager.Client.Helpers
+@using CompliantManager.Shared.Dtos
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@attribute [Authorize]
