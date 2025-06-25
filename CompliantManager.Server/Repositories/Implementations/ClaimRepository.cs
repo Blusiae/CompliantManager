@@ -24,5 +24,12 @@ namespace CompliantManager.Server.Repositories.Implementations
 
             return await baseQuery.FirstOrDefaultAsync(x => x.Id == id);
         }
+
+        public async Task<List<Claim>> GetByCustomerIdAsync(int customerId)
+        {
+            return await DbSet.Include(c => c.Order)
+                .Where(claim => claim.Order.CustomerId == customerId)
+                .ToListAsync();
+        }
     }
 }

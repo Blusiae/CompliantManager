@@ -44,12 +44,7 @@ namespace CompliantManager.Server.Services.Implementations
 
         public async Task<List<Claim>> GetByCustomerId(int customerId)
         {
-            var claims = await _claimRepository.GetAllAsync(
-                includes: x => x.Order);
-
-            return claims
-                .Where(c => c.Order != null && c.Order.CustomerId == customerId)
-                .ToList();
+            return await _claimRepository.GetByCustomerIdAsync(customerId);
         }
 
         public async Task<Claim?> GetById(int id)
