@@ -23,7 +23,7 @@ namespace CompliantManager.Server.Repositories.Implementations
             await _context.SaveChangesAsync();
         }
 
-        public async Task<T?> GetByIdAsync(int id, Expression<Func<T, T>>? selector = null, params Expression<Func<T, object>>[] includes)
+        public virtual async Task<T?> GetByIdAsync(int id, Expression<Func<T, T>>? selector = null, params Expression<Func<T, object>>[] includes)
         {
             var baseQuery = GetQueryWithIncludes(includes);
 
@@ -59,7 +59,7 @@ namespace CompliantManager.Server.Repositories.Implementations
             }
         }
 
-        private IQueryable<T> GetQueryWithIncludes(params Expression<Func<T, object>>[] includes)
+        protected IQueryable<T> GetQueryWithIncludes(params Expression<Func<T, object>>[] includes)
         {
             var baseQuery = DbSet.AsQueryable();
 

@@ -4,5 +4,6 @@ namespace CompliantManager.Server.Repositories.Interfaces
 {
     public interface IClaimRepository : IBaseRepository<Claim>
     {
+        Task<List<Claim>> GetByCustomerIdAsync(int customerId);
     }
 }
