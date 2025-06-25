@@ -54,13 +54,7 @@ namespace CompliantManager.Server.Services.Implementations
 
         public async Task<Claim?> GetById(int id)
         {
-            var claim = await _claimRepository.GetByIdAsync(id, includes: x => x.Order);
-
-            if (claim?.Order != null)
-            {
-                claim.Order.Customer = await _customerRepository.GetByIdAsync(claim.Order.CustomerId);
-            }
-            return claim;
+            return await _claimRepository.GetByIdAsync(id);
         }
 
         public async Task<bool> SetStatus(int id, string status)
