@@ -32,13 +32,13 @@
             <PropertyColumn Property="@(c => c.PhoneNumber)" Title="Numer telefonu" />
         </Columns>
         <PagerContent>
+            @if (_dataGrid?.Items is null || !_dataGrid.Items.Any())
+            {
+                <MudText Class="mt-3 mb-2 ml-3" Typo="Typo.body1">Brak klientów do wyświetlenia.</MudText>
+            }
             <MudDataGridPager T="CustomerDto" />
         </PagerContent>
     </MudDataGrid>
-    @if (_dataGrid?.Items?.Count() == 0)
-    {
-        <MudText Class="mt-3" Typo="Typo.body1">Brak klientów do wyświetlenia.</MudText>
-    }
 </MudContainer>
 
 
