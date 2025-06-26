@@ -8,7 +8,7 @@
         <MudToolBar>
             <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/customer"))">Nowy</MudButton>
             <MudButton StartIcon="@Icons.Material.Filled.Edit" Disabled="_dataGrid?.SelectedItems?.Count != 1" OnClick="Edit">Edytuj</MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="_dataGrid?.SelectedItems?.Count == 0" OnClick="DeleteUsers">Usuń</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="_dataGrid?.SelectedItems?.Count == 0" OnClick="DeleteCustomers">Usuń</MudButton>
         </MudToolBar>
     </MudPaper>
 
@@ -48,21 +48,21 @@
 
     // private string? _searchTerm;
 
-    private async Task<List<CustomerDto>> GetUsers(int pageSize, int currentPage)
+    private async Task<List<CustomerDto>> GetCustomers(int pageSize, int currentPage)
     {
-        return await _customerService.GetCustomersAsync(pageSize, pageSize * currentPage);
+        return await _customerService.GetAllAsync(pageSize, pageSize * currentPage);
     }
 
-    private async Task<int> GetUsersCount()
+    private async Task<int> GetCustomersCount()
     {
-        return await _customerService.GetCustomersCountAsync();
+        return await _customerService.GetCountAsync();
     }
 
-    private async Task DeleteUsers()
+    private async Task DeleteCustomers()
     {
         try
         {
-            await _customerService.DeleteCustomersAsync(_dataGrid.SelectedItems.Select(u => u.Id).ToList());
+            await _customerService.DeleteManyAsync(_dataGrid.SelectedItems.Select(u => u.Id).ToList());
         }
         catch (Exception ex)
         {
@@ -82,13 +82,13 @@
 
         try
         {
-            var users = await GetUsers(pageSize, currentPage);
-            var usersCount = await GetUsersCount();
+            var customers = await GetCustomers(pageSize, currentPage);
+            var customersCount = await GetCustomersCount();
 
             GridData<CustomerDto> data = new()
             {
-                Items = users,
-                TotalItems = usersCount
+                Items = customers,
+                TotalItems = customersCount
             };
 
             return data;

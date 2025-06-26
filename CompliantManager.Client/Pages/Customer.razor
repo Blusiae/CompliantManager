@@ -117,7 +117,7 @@
         {
             try
             {
-                _customer = await _customerService.GetCustomerAsync(Id.Value);
+                _customer = await _customerService.GetByIdAsync(Id.Value);
             }
             catch (Exception ex)
             {
@@ -142,13 +142,13 @@
             }
             if (Id is null)
             {
-                var customerId = await _customerService.CreateCustomerAsync(_customer);
+                var customerId = await _customerService.CreateAsync(_customer);
                 Snackbar.Add("Klient został utworzony.", Severity.Success);
                 Navigation.NavigateTo($"/customer/{customerId}");
             }
             else
             {
-                await _customerService.UpdateCustomerAsync(_customer);
+                await _customerService.UpdateAsync(_customer);
                 Snackbar.Add("Klient został zaktualizowany.", Severity.Success);
                 Navigation.Refresh();
             }
@@ -166,7 +166,7 @@
         if (Id is null) return;
         try
         {
-            await _customerService.DeleteCustomerAsync(_customer.Id);
+            await _customerService.DeleteByIdAsync(_customer.Id);
             Snackbar.Add("Klient został usunięty.", Severity.Success);
             Navigation.NavigateTo("/customers");
         }

@@ -1,6 +1,5 @@
 ﻿using CompliantManager.Server.Data.Entities;
 using CompliantManager.Shared.Dtos;
-using CompliantManager.Shared.Enums;
 
 namespace CompliantManager.Server.Extensions
 {
@@ -14,7 +13,8 @@ namespace CompliantManager.Server.Extensions
             Status = entity.Status,
             CreatedOn = entity.CreatedOn,
             CompletedOn = entity.CompletedOn,
-            Consultant = entity.Consultant?.ToConsultantDto()
+            Consultant = entity.Consultant?.ToConsultantDto(),
+            ConsultantId = entity.ConsultantId
         };
 
         public static ProductDto ToDto(this Product entity, int quantity, int faultyQuantity) => new()
@@ -22,7 +22,8 @@ namespace CompliantManager.Server.Extensions
             Id = entity.Id,
             Name = entity.Name,
             Quantity = quantity,
-            FaultyQuantity = faultyQuantity
+            FaultyQuantity = faultyQuantity,
+            IsFromDatabase = true
         };
 
         public static OrderDto ToDto(this Order entity) => new()
@@ -30,7 +31,7 @@ namespace CompliantManager.Server.Extensions
             Id = entity.Id,
             OrderDate = entity.OrderDate,
             OrderNumber = entity.OrderNumber,
-            Products = entity.OrderItems.Select(item => item.Product.ToDto(item.Quantity, item.FaultyQuantity)),
+            Products = entity.OrderItems.Select(item => item.Product.ToDto(item.Quantity, item.FaultyQuantity)).ToList(),
             Customer = entity.Customer?.ToDto()
         };
 
@@ -62,24 +63,31 @@ namespace CompliantManager.Server.Extensions
             Id = dto.Id,
             Order = dto.Order?.ToEntity(),
             ExpectedAction = dto.ExpectedAction ?? string.Empty,
-            Status = dto.Status ?? Status.Nowe,
+            Status = dto.Status,
             CreatedOn = dto.CreatedOn,
             CompletedOn = dto.CompletedOn,
-            ConsultantId = dto.Consultant?.Id
+            ConsultantId = dto.ConsultantId
         };
 
         public static Order ToEntity(this OrderDto dto) => new()
         {
             Id = dto.Id,
-            OrderDate = dto.OrderDate,
+            OrderDate = dto.OrderDate ?? DateTime.Now,
             OrderNumber = dto.OrderNumber ?? string.Empty,
             Customer = dto.Customer?.ToEntity(),
+            CustomerId = dto.CustomerId,
             OrderItems = dto.Products.Select(p => new OrderItem
             {
-                ProductId = p.Id,
                 Quantity = p.Quantity,
-                FaultyQuantity = p.FaultyQuantity
+                FaultyQuantity = p.FaultyQuantity,
+                Product = p.ToEntity(),
             }).ToList()
+        };
+
+        public static Product ToEntity(this ProductDto dto) => new()
+        {
+            Id = dto.Id,
+            Name = dto.Name
         };
 
         public static Customer ToEntity(this CustomerDto dto) => new()

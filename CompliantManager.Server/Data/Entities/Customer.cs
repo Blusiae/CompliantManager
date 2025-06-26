@@ -9,6 +9,6 @@
         public int AddressId { get; set; }
         public Address? Address { get; set; }
         public bool NotificationsEnabled { get; set; }
-        public IEnumerable<Order> Orders { get; set; } = [];
+        public List<Order> Orders { get; set; } = [];
     }
 }

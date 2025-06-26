@@ -9,14 +9,14 @@ namespace CompliantManager.Client.Services.Implementations
     {
         private readonly HttpClient _httpClient = httpClient;
 
-        public async Task<int> CreateCustomerAsync(CustomerDto customer)
+        public async Task<int> CreateAsync(CustomerDto customer)
         {
             var response = await _httpClient.PostAsJsonAsync("/api/customer", customer);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<int>();
         }
 
-        public async Task DeleteCustomerAsync(int id)
+        public async Task DeleteByIdAsync(int id)
         {
             var response = await _httpClient.DeleteAsync($"/api/customer/{id}");
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -24,7 +24,7 @@ namespace CompliantManager.Client.Services.Implementations
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task DeleteCustomersAsync(List<int> ids)
+        public async Task DeleteManyAsync(List<int> ids)
         {
             var response = await _httpClient.PostAsJsonAsync("/api/customer/deleteMultiple", ids);
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -32,7 +32,7 @@ namespace CompliantManager.Client.Services.Implementations
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<CustomerDto> GetCustomerAsync(int id)
+        public async Task<CustomerDto> GetByIdAsync(int id)
         {
             var response = await _httpClient.GetAsync($"/api/customer/{id}");
 
@@ -41,7 +41,7 @@ namespace CompliantManager.Client.Services.Implementations
             return await response.Content.ReadFromJsonAsync<CustomerDto>() ?? new();
         }
 
-        public async Task<List<CustomerDto>> GetCustomersAsync(int count, int offset)
+        public async Task<List<CustomerDto>> GetAllAsync(int count, int offset)
         {
             var response = await _httpClient.GetAsync($"/api/customer?count={count}&offset={offset}");
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -53,14 +53,14 @@ namespace CompliantManager.Client.Services.Implementations
 
         }
 
-        public async Task<int> GetCustomersCountAsync()
+        public async Task<int> GetCountAsync()
         {
             var response = await _httpClient.GetAsync("/api/customer/count");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<int?>() ?? 0;
         }
 
-        public async Task UpdateCustomerAsync(CustomerDto customer)
+        public async Task UpdateAsync(CustomerDto customer)
         {
             var response = await _httpClient.PatchAsJsonAsync($"/api/customer", customer);
             response.EnsureSuccessStatusCode();

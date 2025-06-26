@@ -64,5 +64,14 @@ namespace CompliantManager.Client.Services.Implementations
             var response = await _httpClient.PatchAsJsonAsync($"/api/user", user);
             response.EnsureSuccessStatusCode();
         }
+
+        public async Task<UserDto> GetCurrentUserAsync()
+        {
+            var response = await _httpClient.GetAsync("/api/auth/me");
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                throw new Exception("Nie znaleziono bieżącego użytkownika.");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<UserDto>() ?? new();
+        }
     }
 }
