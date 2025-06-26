@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace CompliantManager.Shared.Dtos
 {
@@ -20,7 +21,10 @@ namespace CompliantManager.Shared.Dtos
         public string? Street { get; set; } = default!;
         public string? HouseNumber { get; set; }
         public string? City { get; set; }
+        [Required(ErrorMessage = "Postal code is required.")]
+        [RegularExpression(@"^[A-Za-z0-9\s\-]{3,10}$", ErrorMessage = "Invalid postal code format.")]
         public string? PostalCode { get; set; }
+
         public string? Country { get; set; }
     }
 }

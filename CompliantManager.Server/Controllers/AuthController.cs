@@ -52,10 +52,21 @@ namespace CompliantManager.Server.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            if(user is null)
+            if (user is null)
                 return NotFound("Użytkownik nie znaleziony.");
 
             return Ok(new { user.Id, user.Email, user.UserName });
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet("exists")]
+        public async Task<IActionResult> UserExists([FromQuery] string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user is null)
+                return NotFound("Użytkownik nie znaleziony.");
+            return Ok(new { exists = true });
+
         }
     }
 }

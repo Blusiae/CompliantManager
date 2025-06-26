@@ -82,7 +82,8 @@
                                       Label="Kod pocztowy"
                                       Required="true"
                                       For="@(() => _customer.PostalCode)"
-                                      ErrorText="Kod pocztowy jest niepoprawny." Class="mt-3" />
+                                      ErrorText="Kod pocztowy jest niepoprawny." 
+                                      MaxLength="10" Class="mt-3" />
 
                         <MudTextField @bind-Value="_customer.Street"
                                       Label="Ulica"
@@ -92,9 +93,9 @@
 
                         <MudTextField @bind-Value="_customer.HouseNumber"
                                       Label="Numer domu"
-                                      Required="false"
+                                      Required="true"
                                       For="@(() => _customer.HouseNumber)"
-                                      Class="mt-3" />
+                                      ErrorText="Numer domu jest wymagany." Class="mt-3" />
                     </MudCardContent>
                 </MudCard>
             </MudItem>

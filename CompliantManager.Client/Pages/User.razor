@@ -62,7 +62,7 @@
                                        @bind-Value="_user.IsAdministrator"
                                        For="@(() => _user.IsAdministrator)"
                                        Color="Color.Primary"
-                                       ReadOnly="true"
+                                       ReadOnly="false"
                                        Style="@(Id is null ? "display: none" : "")" />
                         </div>
                     </MudForm>
@@ -120,7 +120,7 @@
             {
                 await _userService.UpdateUserAsync(_user);
                 Snackbar.Add("Użytkownik został zaktualizowany.", Severity.Success);
-                Navigation.Refresh();
+                //Navigation.Refresh();
             }
             Navigation.NavigateTo("/users");
         }
