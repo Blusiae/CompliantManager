@@ -53,6 +53,10 @@ namespace CompliantManager.Server.Services.Implementations
         {
             return await _claimRepository.GetByIdAsync(id);
         }
+        public async Task<Claim?> GetByIdAsNoTracking(int id)
+        {
+            return await _claimRepository.GetByIdAsNoTracking(id);
+        }
 
         public async Task<int> GetCount()
         {

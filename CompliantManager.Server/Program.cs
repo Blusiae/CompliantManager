@@ -8,6 +8,7 @@ using CompliantManager.Shared.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -52,6 +53,12 @@ builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+// Register MailingService with connection string from configuration
+builder.Services.AddScoped<IMailingService>(provider =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("AzureCommunicationServices");
+    return new MailingService(connectionString);
+});
 
 builder.Services.AddScoped<InitialSetupService>();
 

@@ -10,10 +10,11 @@ namespace CompliantManager.Server.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class ClaimController(IClaimService claimService, IProductService productService) : ControllerBase
+    public class ClaimController(IClaimService claimService, IProductService productService, IMailingService mailingService) : ControllerBase
     {
         private readonly IClaimService _claimService = claimService;
         private readonly IProductService _productService = productService;
+        private readonly IMailingService _mailingService = mailingService;
 
         [HttpGet]
         public async Task<IActionResult> GetClaims([FromQuery] int count, [FromQuery] int offset, [FromQuery] ListMode mode, [FromQuery] Guid? userId = null)
@@ -71,8 +72,17 @@ namespace CompliantManager.Server.Controllers
             }
 
             claimDto.Order.Products = claimDto.Order.Products.Where(p => !p.IsFromDatabase && !p.IsDeleted).ToList();
+            
+            var oldClaim = await _claimService.GetByIdAsNoTracking(claimDto.Id);
 
             await _claimService.Edit(claimDto.ToEntity());
+
+            if (oldClaim.Status != claimDto.Status)
+            {
+                await _mailingService.Send("Claim status changed",
+                    "Your claim status has been changed to " + claimDto.Status.ToString(),
+                    oldClaim.Order?.Customer?.Email ?? string.Empty);
+            }
 
             return Ok("Claim updated successfully.");
         }
