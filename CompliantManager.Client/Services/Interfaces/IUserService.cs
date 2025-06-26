@@ -11,5 +11,6 @@ namespace CompliantManager.Client.Services.Interfaces
         Task DeleteUserAsync(Guid id);
         Task<Guid> CreateUserAsync(UserDto user);
         Task UpdateUserAsync(UserDto user);
+        Task<UserDto> GetCurrentUserAsync();
     }
 }

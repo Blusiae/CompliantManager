@@ -1,65 +1,334 @@
-﻿@page "/claim/{id}"
+﻿@page "/claim"
+@page "/claim/{id:int}"
 @using Microsoft.AspNetCore.WebUtilities;
+@using CompliantManager.Shared.Enums;
 @inject NavigationManager Navigation
+@inject IClaimService _claimService
+@inject IUserService _userService
+@inject ICustomerService _customerService
 
-<MudPaper Elevation="25">
-    <MudToolBar>
-        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" OnClick="@(() => Navigation.NavigateTo($"/claims/{_listMode}"))" />
-        <MudButton StartIcon="@Icons.Material.Filled.Save">Zapisz</MudButton>
-        <MudButton StartIcon="@Icons.Material.Filled.Delete">Usuń</MudButton>
-        <MudButton StartIcon="@Icons.Material.Filled.Person">Przejmij</MudButton>
-    </MudToolBar>
-</MudPaper>
+@if (!_isLoading)
+{
+    <MudPaper Elevation="25">
+        <MudToolBar>
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" OnClick="@(() => Navigation.NavigateTo($"/claims/{_listMode}"))" />
+            <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/claim"))">Nowe</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Save" OnClick="Save">Zapisz</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Delete" OnClick="Delete" Disabled="Id is null">Usuń</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Person" OnClick="TakeOver" Disabled="Id is null">Przejmij</MudButton>
+        </MudToolBar>
+    </MudPaper>
 
-<MudPaper Class="mt-5 pa-5">
-    <MudContainer Class="d-flex ms-0 px-0">
-        <MudText Typo="Typo.h5" Class="mt-1">Zgłoszenie #@Id</MudText>
-        <MudChip T="string" Variant="Variant.Text" Color="Color.Success" Class="mx-3">Aktywne</MudChip>
-    </MudContainer>
-    <MudText Typo="Typo.overline">Odpowiedzialny: Imię Nazwisko</MudText>
-    <MudGrid Class="mt-1">
-        <MudItem md="4">
-            <MudCard Class="py-2" Elevation="1">
-                <MudCardHeader Style="padding-bottom: 0;">
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Dane klienta</MudText>
-                    </CardHeaderContent>
-                    <CardHeaderActions>
-                        <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Color="Color.Default" />
-                    </CardHeaderActions>
-                </MudCardHeader>
-                <MudCardContent Style="padding-top: 0;">
-                    <MudTextField Label="Imię"
-                                  T="string" />
-                    <MudTextField Label="Nazwisko" Class="mt-3"
-                                  T="string" />
-                    <MudTextField Label="Adres e-mail" Class="mt-3"
-                                  T="string" />
-                    <MudTextField Label="Numer telefonu" Class="mt-3"
-                                  T="string" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    </MudGrid>
-</MudPaper>
+    <MudPaper Class="mt-5 pa-5">
+        <MudContainer Class="d-flex ms-0 px-0">
+            <MudText Typo="Typo.h5" Class="mt-1">@(Id is null ? "Nowe zgłoszenie" : $"Zgłoszenie #{Id}")</MudText>
+            @if (Id is not null)
+            {
+                <MudChip T="string" Variant="Variant.Text" Color="@(_claim.Status is Status.Nowe or Status.Procesowane ? Color.Success : Color.Error)" Class="mx-3">@(_claim.Status is Status.Nowe or Status.Procesowane ? "Aktywne"  : "Nieaktywne")</MudChip>
+            }
+        </MudContainer>
+        @if (_claim.Consultant is not null)
+        {
+            <MudText Typo="Typo.body1">@($"Odpowiedzialny: {_claim.Consultant.FirstName} {_claim.Consultant.LastName}")</MudText>
+        }
+         <MudForm>
+            <MudGrid Class="mt-1">
+                @if(Id is not null && _claim.Order.Customer is not null)
+                {
+                    <MudItem md="4">
+                        <MudCard Class="py-2" Elevation="1">
+                            <MudCardHeader Style="padding-bottom: 0;">
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Dane klienta</MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Color="Color.Default" OnClick="@(() => Navigation.NavigateTo($"/customer/{_claim.Order.Customer.Id}"))" />
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent Style="padding-top: 0;">
 
+                                <MudTextField @bind-Value="_claim.Order.Customer.FirstName"
+                                              Label="Imię" Class="mt-3" Disabled="true" />
+
+                                <MudTextField @bind-Value="_claim.Order.Customer.LastName"
+                                              Label="Nazwisko" Class="mt-3" Disabled="true" />
+
+                                <MudTextField @bind-Value="_claim.Order.Customer.Email"
+                                              Label="E-mail" Class="mt-3" Disabled="true" />
+
+                                <MudTextField @bind-Value="_claim.Order.Customer.PhoneNumber"
+                                              Label="Numer telefonu" Class="mt-3" Disabled="true" />
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                }
+                <MudItem md="4">
+                    <MudCard Class="py-2" Elevation="1">
+                        <MudCardHeader Style="padding-bottom: 0;">
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Szczegóły</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent Style="padding-top: 0;">
+                            @if(Id is not null)
+                            {
+                                <MudTextField @bind-Value="_claim.CreatedOn"
+                                              Label="Data utworzenia"
+                                              For="@(() => _claim.CreatedOn)"
+                                              Disabled="true"
+                                              Class="mt-3" />
+                            }
+
+                            <MudSelect T="Status" @bind-Value="_claim.Status" Label="Status" Class="mt-3">
+                                @foreach (var status in Enum.GetValues(typeof(Status)).Cast<Status>())
+                                {
+                                    <MudSelectItem Value="status">@status.ToString()</MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            @if(_claim.CompletedOn is not null)
+                            {
+                                <MudTextField @bind-Value="_claim.CompletedOn"
+                                              Label="Data utworzenia"
+                                              For="@(() => _claim.CompletedOn)"
+                                              Disabled="true"
+                                              Class="mt-3" />
+                            }
+
+                            <MudTextField @bind-Value="_claim.ExpectedAction"
+                                          Label="Oczekiwany rezultat"
+                                          For="@(() => _claim.ExpectedAction)"
+                                          Required="true"
+                                          ErrorText="Oczekiwany rezultat jest wymagany"
+                                          Class="mt-3" />
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+                <MudItem md="4">
+                    <MudCard Class="py-2" Elevation="1">
+                        <MudCardHeader Style="padding-bottom: 0;">
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Zamówienie</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent Style="padding-top: 0;">
+                            <MudTextField @bind-Value="_claim.Order.OrderNumber"
+                                          Label="Numer zamówienia"
+                                          For="@(() => _claim.Order.OrderNumber)"
+                                          Class="mt-3" />
+
+                            <MudDatePicker @bind-Date="_claim.Order.OrderDate" For="@(() => _claim.Order.OrderDate)" Label="Data zamówienia" MaxDate="DateTime.Today" Class="mt-3" />
+                            <MudAutocomplete T="CustomerDto"
+                                             Label="Klient"
+                                             @bind-Value="_claim.Order.Customer"
+                                             SearchFunc="SearchCustomers"
+                                             ToStringFunc="@(c => $"{c.FirstName} {c.LastName}")"
+                                             CoerceText="true"
+                                             Clearable="true"
+                                             Adornment="Adornment.Start"
+                                             AdornmentIcon="@Icons.Material.Filled.Person"
+                                             For="@(() => _claim.Order.Customer)"
+                                             Class="mt-3" />
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+        <MudTable Items="_claim.Order.Products" Bordered="true" Hover="true" Striped="true" Class="mt-5">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Produkty</MudText>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Nazwa</MudTh>
+                <MudTh>Ilość</MudTh>
+                <MudTh>Ilość w reklamacji</MudTh>
+                <MudTh>Akcje</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                @if (!@context.IsDeleted)
+                {
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>@context.Quantity</MudTd>
+                    <MudTd>@context.FaultyQuantity</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error" Size="Size.Small"
+                                       OnClick="@(() => DeleteProduct(context))" />
+                    </MudTd>
+                }
+            </RowTemplate>
+
+            <FooterContent>
+                <MudTd>
+                    <MudTextField @bind-Value="_newProduct.Name"
+                                  Placeholder="Nazwa"
+                                  Immediate="true"
+                                  OnBlur="AddProduct" />
+                </MudTd>
+                <MudTd>
+                    <MudNumericField @bind-Value="_newProduct.Quantity"
+                                     Placeholder="Ilość"
+                                     Immediate="true"
+                                     OnBlur="AddProduct"
+                                     Min="0" />
+                </MudTd>
+                <MudTd>
+                    <MudNumericField @bind-Value="_newProduct.FaultyQuantity"
+                                     Placeholder="Ilość w reklamacji"
+                                     Immediate="true"
+                                     OnBlur="AddProduct"
+                                     Min="0" />
+                </MudTd>
+                <MudTd></MudTd>
+            </FooterContent>
+        </MudTable>
+
+
+    </MudPaper>
+}
 
 
 @code {
     [Parameter]
-    public string? Id { get; set; } // jesli null to znaczy ze jest to nowy claim
+    public int? Id { get; set; }
 
     private string _listMode = "active";
 
-    protected override void OnInitialized()
+    private ClaimDto _claim = new();
+    private MudForm _form = new();
+
+    private List<CustomerDto> _customers = new();
+
+    private bool _isLoading = true;
+
+    private ProductDto _newProduct = new();
+
+    protected override async Task OnInitializedAsync()
     {
+        if (Id.HasValue)
+        {
+            try
+            {
+                _claim = await _claimService.GetByIdAsync(Id.Value);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching claim: {ex.Message}");
+                Snackbar.Add("Nie można pobrać zgłoszenia.", Severity.Error);
+                Navigation.NavigateTo("/claims");
+            }
+        }
+
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
         if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("listMode", out var listMode))
         {
             _listMode = listMode;
         }
 
+        var customersCount = await _customerService.GetCountAsync();
+        _customers = await _customerService.GetAllAsync(customersCount, 0);
 
-        base.OnInitialized();
+        _isLoading = false;
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            await _form.Validate();
+            if (!_form.IsValid)
+            {
+                Snackbar.Add("Uzupełnij poprawnie wszystkie pola.", Severity.Error);
+                return;
+            }
+
+            _claim.Order.CustomerId = _claim.Order.Customer.Id;
+            _claim.Order.Customer = null;
+
+            if (Id is null)
+            {
+                Id = await _claimService.CreateAsync(_claim);
+                Snackbar.Add("Zgłoszenie zostało utworzone.", Severity.Success);
+                _claim = await _claimService.GetByIdAsync(Id.Value);
+            }
+            else
+            {
+                await _claimService.UpdateAsync(_claim);
+                Snackbar.Add("Zgłoszenie zostało zaktualizowane.", Severity.Success);
+                _claim = await _claimService.GetByIdAsync(Id.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving user: {ex.Message}");
+            Snackbar.Add("Wystąpił błąd podczas zapisywania zgłoszenia.", Severity.Error);
+        }
+    }
+
+    private async Task Delete()
+    {
+        if (Id is null) return;
+        try
+        {
+            await _claimService.DeleteByIdAsync(_claim.Id);
+            Snackbar.Add("Zgłoszenie zostało usunięte.", Severity.Success);
+            Navigation.NavigateTo($"/claims/{_listMode}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting claim: {ex.Message}");
+            Snackbar.Add("Wystąpił błąd podczas usuwania zgłoszenia.", Severity.Error);
+        }
+    }
+
+    private async Task TakeOver()
+    {
+        if (Id is null) return;
+        try
+        {
+            var currentUser = await _userService.GetCurrentUserAsync();
+            _claim.ConsultantId = currentUser.Id;
+            _claim.Order.CustomerId = _claim.Order.Customer.Id;
+            _claim.Order.Customer = null;
+            await _claimService.UpdateAsync(_claim);
+            Snackbar.Add("Zgłoszenie zostało przejęte.", Severity.Success);
+            _claim = await _claimService.GetByIdAsync(Id.Value);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error taking over claim: {ex.Message}");
+            Snackbar.Add("Wystąpił błąd podczas przejmowania zgłoszenia.", Severity.Error);
+        }
+    }
+
+    private async Task<IEnumerable<CustomerDto>> SearchCustomers(string value, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return _customers;
+
+        return _customers
+            .Where(c => $"{c.FirstName} {c.LastName}".Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private void AddProduct()
+    {
+        if (!string.IsNullOrWhiteSpace(_newProduct.Name) && _newProduct.Quantity > 0 && _newProduct.FaultyQuantity > 0)
+        {
+            _claim.Order.Products.Add(_newProduct);
+            _newProduct = new();
+            StateHasChanged();
+        }
+    }
+
+    private void DeleteProduct(ProductDto product)
+    {
+        product.IsDeleted = true;
+        if (!product.IsFromDatabase)
+        {
+            _claim.Order.Products.Remove(product);
+        }
+        StateHasChanged();
     }
 }

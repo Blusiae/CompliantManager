@@ -1,4 +1,4 @@
-﻿using CompliantManager.Client.Enums;
+﻿using CompliantManager.Shared.Enums;
 
 namespace CompliantManager.Client.Helpers
 {

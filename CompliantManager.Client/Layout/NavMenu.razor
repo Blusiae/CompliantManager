@@ -1,9 +1,8 @@
-﻿@using CompliantManager.Client.Enums
+﻿@using CompliantManager.Shared.Enums
 @using CompliantManager.Client.Helpers
 <MudNavMenu>
-    <MudNavLink Href="/" Match="NavLinkMatch.All">Dashboard</MudNavLink>
     <MudNavGroup Title="Zgłoszenia" Expanded="true">
-        <MudNavLink Href="@NavigationHelper.GetListModeQueryString("claims", ListMode.Moje)" Match="NavLinkMatch.Prefix" Disabled="true">Moje</MudNavLink>
+        <MudNavLink Href="@NavigationHelper.GetListModeQueryString("claims", ListMode.Moje)" Match="NavLinkMatch.Prefix">Moje</MudNavLink>
         <MudNavLink Href="@NavigationHelper.GetListModeQueryString("claims", ListMode.Aktywne)" Match="NavLinkMatch.Prefix">Aktywne</MudNavLink>
         <MudNavLink Href="@NavigationHelper.GetListModeQueryString("claims", ListMode.Wszystkie)" Match="NavLinkMatch.Prefix">Wszystkie</MudNavLink>
         <MudNavLink Href="@NavigationHelper.GetListModeQueryString("claims", ListMode.Nieaktywne)" Match="NavLinkMatch.Prefix">Nieaktywne</MudNavLink>

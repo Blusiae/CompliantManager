@@ -1,4 +1,5 @@
 ﻿using CompliantManager.Server.Data.Entities;
+using CompliantManager.Shared.Dtos;
 using Microsoft.AspNetCore.Identity;
 
 namespace CompliantManager.Server.Services.Implementations
@@ -13,7 +14,7 @@ namespace CompliantManager.Server.Services.Implementations
             return _userManager.Users.Any();
         }
 
-        public async Task InitializeAsync(string email, string password, string firstName, string lastName)
+        public async Task InitializeAsync(UserDto userDto)
         {
             if (IsInitialized())
                 return;
@@ -23,8 +24,8 @@ namespace CompliantManager.Server.Services.Implementations
                 await _roleManager.CreateAsync(new ApplicationRole("Administrator"));
             }
 
-            var user = new ApplicationUser { UserName = email, Email = email, FirstName = firstName, LastName = lastName };
-            var result = await _userManager.CreateAsync(user, password);
+            var user = new ApplicationUser { UserName = userDto.Email, Email = userDto.Email, FirstName = userDto.FirstName!, LastName = userDto.LastName! };
+            var result = await _userManager.CreateAsync(user, userDto.Password!);
 
             if (result.Succeeded)
             {

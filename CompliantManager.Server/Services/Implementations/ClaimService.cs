@@ -1,15 +1,17 @@
 ﻿using CompliantManager.Server.Data.Entities;
 using CompliantManager.Server.Repositories.Interfaces;
 using CompliantManager.Server.Services.Interfaces;
+using CompliantManager.Shared.Enums;
+using System.Linq.Expressions;
 
 namespace CompliantManager.Server.Services.Implementations
 {
-    public class ClaimService(IClaimRepository claimRepository, ICustomerRepository customerRepository) : IClaimService
+    public class ClaimService(IClaimRepository claimRepository) : IClaimService
     {
         private readonly IClaimRepository _claimRepository = claimRepository;
-        private readonly ICustomerRepository _customerRepository = customerRepository;
         public async Task Create(Claim claim)
         {
+            claim.CreatedOn = DateTime.Now;
             await _claimRepository.CreateAsync(claim);
         }
 
@@ -24,27 +26,27 @@ namespace CompliantManager.Server.Services.Implementations
             return true;
         }
 
-        public async Task<bool> Edit(Claim claim)
+        public async Task Edit(Claim claim)
         {
-            var existingClaim = await _claimRepository.GetByIdAsync(claim.Id);
-            if (existingClaim == null)
+            await _claimRepository.UpdateAsync(claim);
+        }
+
+        public Task<List<Claim>> GetAll(int skip, int take, ListMode listMode, Guid? userId)
+        {
+            Expression<Func<Claim, bool>>? condition = listMode switch
             {
-                return false;
-            }
-            existingClaim.Status = claim.Status;
-            existingClaim.OrderId = claim.OrderId;
-            await _claimRepository.UpdateAsync(existingClaim);
-            return true;
+                ListMode.Wszystkie => null,
+                ListMode.Aktywne => c => c.Status == Status.Nowe || c.Status == Status.Procesowane,
+                ListMode.Nieaktywne => c => c.Status == Status.Zaakceptowane || c.Status == Status.Odrzucone,
+                ListMode.Moje => c => c.ConsultantId == userId,
+                _ => null
+            };
+            return _claimRepository.GetAllAsync(skip, take, condition);
         }
 
-        public Task<List<Claim>> GetAll()
+        public async Task<List<Claim>> GetByCustomerId(int skip, int take, int customerId)
         {
-            return _claimRepository.GetAllAsync();
-        }
-
-        public async Task<List<Claim>> GetByCustomerId(int customerId)
-        {
-            return await _claimRepository.GetByCustomerIdAsync(customerId);
+            return await _claimRepository.GetByCustomerIdAsync(skip, take, customerId);
         }
 
         public async Task<Claim?> GetById(int id)
@@ -52,20 +54,9 @@ namespace CompliantManager.Server.Services.Implementations
             return await _claimRepository.GetByIdAsync(id);
         }
 
-        public async Task<bool> SetStatus(int id, string status)
+        public async Task<int> GetCount()
         {
-            var claim = await _claimRepository.GetByIdAsync(id);
-
-            if (claim == null)
-            {
-                return false;
-            }
-
-            claim.Status = status;
-            claim.CompletedOn = status == "Completed" ? DateTime.UtcNow : null;
-
-            await _claimRepository.UpdateAsync(claim);
-            return true;
+            return await _claimRepository.GetCountAsync();
         }
     }
 }

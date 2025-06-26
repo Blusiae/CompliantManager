@@ -1,7 +1,10 @@
 ﻿using CompliantManager.Server.Data;
 using CompliantManager.Server.Data.Entities;
+using CompliantManager.Server.Repositories.Implementations;
+using CompliantManager.Server.Repositories.Interfaces;
 using CompliantManager.Server.Services.Implementations;
 using CompliantManager.Server.Services.Interfaces;
+using CompliantManager.Shared.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +22,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=.;Database=CompliantManagerDB;Trusted_Connection=True;Encrypt=False;"));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
@@ -41,7 +44,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+builder.Services.AddScoped<IClaimService, ClaimService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
 builder.Services.AddScoped<InitialSetupService>();
 
 builder.Services.AddAuthorization();
@@ -56,12 +67,10 @@ dbContext.Database.Migrate();
 var setupService = scope.ServiceProvider.GetRequiredService<InitialSetupService>();
 if (!setupService.IsInitialized())
 {
-    var email = "admin@example.com";
-    var password = "Admin123!";
-    var firstName = "Admin";
-    var lastName = "User";
+    UserDto user = new();
+    app.Configuration.GetSection("AdminUser").Bind(user);
 
-    await setupService.InitializeAsync(email, password, firstName, lastName);
+    await setupService.InitializeAsync(user);
 }
 
 // Configure the HTTP request pipeline.

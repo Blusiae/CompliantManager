@@ -23,26 +23,14 @@ namespace CompliantManager.Server.Services.Implementations
             return true;
         }
 
-        public async Task<bool> Edit(Customer customer)
+        public async Task Edit(Customer customer)
         {
-            var existingCustomer = await _customerRepository.GetByIdAsync(customer.Id);
-            if (existingCustomer == null)
-            {
-                return false;
-            }
-            existingCustomer.FirstName = customer.FirstName;
-            existingCustomer.LastName = customer.LastName;
-            existingCustomer.Email = customer.Email;
-            existingCustomer.PhoneNumber = customer.PhoneNumber;
-            existingCustomer.AddressId = customer.AddressId;
-            existingCustomer.NotificationsEnabled = customer.NotificationsEnabled;
-            await _customerRepository.UpdateAsync(existingCustomer);
-            return true;
+            await _customerRepository.UpdateAsync(customer);
         }
 
-        public async Task<List<Customer>> GetAll()
+        public async Task<List<Customer>> GetAll(int skip, int take)
         {
-            return await _customerRepository.GetAllAsync();
+            return await _customerRepository.GetAllAsync(skip, take);
         }
 
         public async Task<Customer?> GetById(int id)
@@ -50,6 +38,10 @@ namespace CompliantManager.Server.Services.Implementations
             return await _customerRepository.GetByIdAsync(id, includes: x => x.Address);
         }
 
+        public async Task<int> GetCount()
+        {
+            return await _customerRepository.GetCountAsync();
+        }
         public async Task<bool> SetNotifications(int id, bool notificationsEnabled)
         {
             var customer = await _customerRepository.GetByIdAsync(id);

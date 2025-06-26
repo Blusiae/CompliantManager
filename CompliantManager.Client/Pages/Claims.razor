@@ -1,32 +1,35 @@
 ﻿@page "/claims/{mode}"
+@using CompliantManager.Shared.Enums
 @inject NavigationManager Navigation
+@inject IClaimService _claimService
+@inject IUserService _userService
 
 <PageTitle>Zgłoszenia</PageTitle>
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudPaper Elevation="25" Class="mb-5">
         <MudToolBar>
+            <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/claim"))">Nowe</MudButton>
             <MudButton StartIcon="@Icons.Material.Filled.Edit" Disabled="_dataGrid?.SelectedItems?.Count != 1" OnClick="Edit">Edytuj</MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="_dataGrid?.SelectedItems?.Count == 0">Usuń</MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.Person" Disabled="_dataGrid?.SelectedItems?.Count == 0">Przejmij</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="_dataGrid?.SelectedItems?.Count == 0" OnClick="DeleteClaims">Usuń</MudButton>
         </MudToolBar>
     </MudPaper>
 
     <MudDataGrid ServerData="LoadGridData" T="ClaimDto" @ref="_dataGrid" Class="mt-5" SortMode="SortMode.None" MultiSelection="true" SelectedItemsChanged="StateHasChanged">
         <ToolBarContent>
             <MudText Typo="Typo.h6">@_listMode.ToString() zgłoszenia</MudText>
-            <MudSpacer />
-            <MudTextField Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         </ToolBarContent>
         <Columns>
             <SelectColumn T="ClaimDto" />
-            <PropertyColumn Property="@(c => c.Id)" Title="Id" />
-            <PropertyColumn Property="@(c => c.Name)" Title="Status" />
-            <PropertyColumn Property="@(c => c.Name)" Title="Zgłaszający" />
-            <PropertyColumn Property="@(c => c.Name)" Title="Odpowiedzialny" />
-            <PropertyColumn Property="@(c => c.Name)" Title="Data zgłoszenia" />
+            <PropertyColumn Property="@(c => c.Status.ToString())" Title="Status" />
+            <PropertyColumn Property="@(c => $"{c.Order.Customer.FirstName} {c.Order.Customer.LastName}")" Title="Zgłaszający" />
+            <PropertyColumn Property="@(c => c.Consultant != null ? $"{c.Consultant.FirstName} {c.Consultant.LastName}" : string.Empty)" Title="Odpowiedzialny" />
+            <PropertyColumn Property="@(c => c.CreatedOn.ToShortDateString())" Title="Data zgłoszenia" />
         </Columns>
         <PagerContent>
+            @if (_emptyGrid)
+            {
+                <MudText Class="mt-3 mb-2 ml-3" Typo="Typo.body1">Brak zgłoszeń do wyświetlenia.</MudText>
+            }
             <MudDataGridPager T="ClaimDto" />
         </PagerContent>
     </MudDataGrid>
@@ -37,18 +40,14 @@
 
     private MudDataGrid<ClaimDto> _dataGrid = new();
 
-    public class ClaimDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
-
     [Parameter]
     public string Mode { get; set; }
 
     private ListMode _listMode;
 
-    protected override void OnParametersSet()
+    private bool _emptyGrid = false;
+
+    protected override async Task OnParametersSetAsync()
     {
         if (Enum.TryParse(Mode, ignoreCase: true, out ListMode listMode))
         {
@@ -58,31 +57,36 @@
         {
             _listMode = ListMode.Aktywne;
         }
+
+        await ReloadGrid();
     }
 
     private async Task<List<ClaimDto>> GetClaims(int pageSize, int currentPage)
     {
-        //return await _factService.GetFacts(pageSize, pageSize * currentPage);
-        return new List<ClaimDto>
-        {
-            new ClaimDto { Id = 1, Name = "Lorem ipsum" },
-            new ClaimDto { Id = 2, Name = "Lorem ipsum" },
-            new ClaimDto { Id = 3, Name = "Lorem ipsum" },
-            new ClaimDto { Id = 4, Name = "Lorem ipsum" },
-            new ClaimDto { Id = 5, Name = "Lorem ipsum" },
-            new ClaimDto { Id = 1, Name = "Lorem ipsum" },
-            new ClaimDto { Id = 2, Name = "Lorem ipsum" },
-            new ClaimDto { Id = 3, Name = "Lorem ipsum" },
-            new ClaimDto { Id = 4, Name = "Lorem ipsum" },
-            new ClaimDto { Id = 5, Name = "Lorem ipsum" }
-
-        };
+        var currentUser = await _userService.GetCurrentUserAsync();
+        return await _claimService.GetAllAsync(pageSize, pageSize * currentPage, _listMode, currentUser.Id);
     }
 
     private async Task<int> GetClaimsCount()
     {
-        //return await _factService.GetFactsCount();
-        return 10;
+        return await _claimService.GetCountAsync();
+    }
+
+    private async Task DeleteClaims()
+    {
+        try
+        {
+            await _claimService.DeleteManyAsync(_dataGrid.SelectedItems.Select(u => u.Id).ToList());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting customers: {ex.Message}");
+            Snackbar.Add("Wystąpił błąd podczas usuwania klientów.", Severity.Error);
+        }
+        finally
+        {
+            await ReloadGrid();
+        }
     }
 
     private async Task<GridData<ClaimDto>> LoadGridData(GridState<ClaimDto> state)
@@ -90,16 +94,27 @@
         var currentPage = state.Page;
         var pageSize = state.PageSize;
 
-        var facts = await GetClaims(pageSize, currentPage);
-        var factsCount = await GetClaimsCount();
-
-        GridData<ClaimDto> data = new()
+        try
         {
-            Items = facts,
-            TotalItems = factsCount
-        };
+            var claims = await GetClaims(pageSize, currentPage);
+            var claimsCount = await GetClaimsCount();
 
-        return data;
+            _emptyGrid = claimsCount == 0;
+
+            GridData<ClaimDto> data = new()
+            {
+                Items = claims,
+                TotalItems = claimsCount
+            };
+
+            return data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading customers: {ex.Message}");
+            Snackbar.Add("Wystąpił błąd podczas pobierania listy klientów.", Severity.Error);
+            return new GridData<ClaimDto> { Items = [], TotalItems = 0 };
+        }
     }
 
     private void Edit()
@@ -110,5 +125,11 @@
         {
             Navigation.NavigateTo($"/claim/{id}?listMode={_listMode.ToString().ToLower()}");
         }
+    }
+
+    private async Task ReloadGrid()
+    {
+        if (_dataGrid is not null)
+            await _dataGrid.ReloadServerData();
     }
 }

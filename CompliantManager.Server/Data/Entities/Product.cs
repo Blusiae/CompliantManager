@@ -3,6 +3,6 @@
     public class Product : Entity
     {
         public string Name { get; set; }  
-        public IEnumerable<OrderItem> OrderItems { get; set; } = [];
+        public List<OrderItem> OrderItems { get; set; } = [];
     }
 }

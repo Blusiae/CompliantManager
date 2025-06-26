@@ -7,6 +7,6 @@
         public string City { get; set; }
         public string PostalCode { get; set; }
         public string Country { get; set; }
-        public IEnumerable<Customer> Customers { get; set; }
+        public List<Customer> Customers { get; set; }
     }
 }

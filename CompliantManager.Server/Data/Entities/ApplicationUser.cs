@@ -6,6 +6,6 @@ namespace CompliantManager.Server.Data.Entities
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public IEnumerable<Claim>? Claims { get; set; } = [];
+        public List<Claim>? Claims { get; set; } = [];
     }
 }

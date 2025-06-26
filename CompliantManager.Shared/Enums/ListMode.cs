@@ -1,4 +1,4 @@
-﻿namespace CompliantManager.Client.Enums
+﻿namespace CompliantManager.Shared.Enums
 {
     public enum ListMode
     {
