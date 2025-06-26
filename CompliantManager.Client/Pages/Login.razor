@@ -44,7 +44,6 @@
 
 @code {
     private LoginDto _login = new();
-    private string? errorMessage;
     private MudForm form = new();
 
 
@@ -56,7 +55,6 @@
 
             if (!form.IsValid)
             {
-                errorMessage = "Podaj e-mail i hasło.";
                 return;
             }
 

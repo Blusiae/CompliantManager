@@ -1,13 +1,13 @@
 ﻿using CompliantManager.Server.Data.Entities;
 using CompliantManager.Server.Repositories.Interfaces;
 using CompliantManager.Server.Services.Interfaces;
+using CompliantManager.Shared.Enums;
 
 namespace CompliantManager.Server.Services.Implementations
 {
-    public class ClaimService(IClaimRepository claimRepository, ICustomerRepository customerRepository) : IClaimService
+    public class ClaimService(IClaimRepository claimRepository) : IClaimService
     {
         private readonly IClaimRepository _claimRepository = claimRepository;
-        private readonly ICustomerRepository _customerRepository = customerRepository;
         public async Task Create(Claim claim)
         {
             await _claimRepository.CreateAsync(claim);
@@ -24,22 +24,14 @@ namespace CompliantManager.Server.Services.Implementations
             return true;
         }
 
-        public async Task<bool> Edit(Claim claim)
+        public async Task Edit(Claim claim)
         {
-            var existingClaim = await _claimRepository.GetByIdAsync(claim.Id);
-            if (existingClaim == null)
-            {
-                return false;
-            }
-            existingClaim.Status = claim.Status;
-            existingClaim.OrderId = claim.OrderId;
-            await _claimRepository.UpdateAsync(existingClaim);
-            return true;
+            await _claimRepository.UpdateAsync(claim);
         }
 
-        public Task<List<Claim>> GetAll()
+        public Task<List<Claim>> GetAll(int skip, int take)
         {
-            return _claimRepository.GetAllAsync();
+            return _claimRepository.GetAllAsync(skip, take);
         }
 
         public async Task<List<Claim>> GetByCustomerId(int customerId)
@@ -52,7 +44,12 @@ namespace CompliantManager.Server.Services.Implementations
             return await _claimRepository.GetByIdAsync(id);
         }
 
-        public async Task<bool> SetStatus(int id, string status)
+        public async Task<int> GetCount()
+        {
+            return await _claimRepository.GetCountAsync();
+        }
+
+        public async Task<bool> SetStatus(int id, Status status)
         {
             var claim = await _claimRepository.GetByIdAsync(id);
 
@@ -62,10 +59,15 @@ namespace CompliantManager.Server.Services.Implementations
             }
 
             claim.Status = status;
-            claim.CompletedOn = status == "Completed" ? DateTime.UtcNow : null;
+            claim.CompletedOn = status is Status.Zaakceptowane or Status.Odrzucone ? DateTime.UtcNow : null;
 
             await _claimRepository.UpdateAsync(claim);
             return true;
+        }
+
+        public Task<bool> SetStatus(int id, string status)
+        {
+            throw new NotImplementedException();
         }
     }
 }

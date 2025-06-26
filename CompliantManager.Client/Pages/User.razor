@@ -10,6 +10,7 @@
 <MudPaper Elevation="25">
     <MudToolBar>
         <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" OnClick="@(() => Navigation.NavigateTo("/users"))" />
+        <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/user"))">Nowy</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Save" OnClick="Save">Zapisz</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="Id is null" OnClick="Delete">Usuń</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.ArrowUpward" Disabled="_user.IsAdministrator || Id is null" OnClick="Promote">Awansuj</MudButton>
@@ -43,14 +44,17 @@
                                       Required="true"
                                       For="@(() => _user.Email)"
                                       ErrorText="E-mail jest niepoprawny" Class="mt-3" />
+                        @if(Id is null)
+                        {
+                            <MudTextField @bind-Value="_user.Password"
+                                          Label="Hasło"
+                                          InputType="InputType.Password"
+                                          Required="Id is null"
+                                          For="@(() => _user.Password)"
+                                          ErrorText="Hasło powinno mieć co najmniej jedną wielką literę oraz znak specjalny" Class="mt-3"
+                                          Validation="ValidatePassword" />
+                        }
 
-                        <MudTextField @bind-Value="_user.Password"
-                                      Label="Hasło"
-                                      InputType="InputType.Password"
-                                      Required="Id is null"
-                                      For="@(() => _user.Password)"
-                                      ErrorText="Hasło powinno mieć co najmniej jedną wielką literę oraz znak specjalny" Class="mt-3"
-                                      Validation="ValidatePassword" />
 
                         <div class="d-flex justify-start mt-3">
                             <MudSwitch Label="Uprawnienia administratora"

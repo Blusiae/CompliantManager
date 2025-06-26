@@ -61,7 +61,7 @@ namespace CompliantManager.Client.Services.Implementations
 
         public async Task UpdateUserAsync(UserDto user)
         {
-            var response = await _httpClient.PatchAsJsonAsync($"/api/user/{user.Id}", user);
+            var response = await _httpClient.PatchAsJsonAsync($"/api/user", user);
             response.EnsureSuccessStatusCode();
         }
     }

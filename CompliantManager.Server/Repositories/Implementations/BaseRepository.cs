@@ -35,17 +35,19 @@ namespace CompliantManager.Server.Repositories.Implementations
             return await baseQuery.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, T>>? selector = null, params Expression<Func<T, object>>[] includes)
+        public async Task<List<T>> GetAllAsync(int skip, int take, Expression<Func<T, T>>? selector = null, params Expression<Func<T, object>>[] includes)
         {
             var baseQuery = GetQueryWithIncludes(includes);
 
-            if(selector is not null)
+            if (selector is not null)
             {
                 baseQuery = baseQuery.Select(selector);
             }
 
             return await baseQuery
                 .AsNoTracking()
+                .Skip(skip)
+                .Take(take)
                 .ToListAsync();
         }
 
@@ -72,6 +74,11 @@ namespace CompliantManager.Server.Repositories.Implementations
             }
 
             return baseQuery;
+        }
+
+        public async Task<int> GetCountAsync()
+        {
+            return await DbSet.CountAsync();
         }
     }
 }
