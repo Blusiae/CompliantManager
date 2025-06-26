@@ -16,14 +16,6 @@
     <MudDataGrid ServerData="LoadGridData" T="UserDto" @ref="_dataGrid" Class="mt-5" SortMode="SortMode.None" MultiSelection="true" SelectedItemsChanged="StateHasChanged">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Użytkownicy</MudText>
-            <MudSpacer />
-            <!--<MudTextField @bind-Value="_searchTerm"
-                          Placeholder="Szukaj"
-                          Immediate="true"
-                          Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Search"
-                          OnBlur="ReloadGrid"
-                          OnKeyUp="@(e => { if (e.Key == "Enter") ReloadGrid(); })" /> -->
         </ToolBarContent>
         <Columns>
             <SelectColumn T="UserDto" />
@@ -33,13 +25,13 @@
             <PropertyColumn Property="@(c => c.Email)" Title="Adres e-mail" />
         </Columns>
         <PagerContent>
+            @if (_emptyGrid)
+            {
+                <MudText Class="mt-3 mb-2 ml-3" Typo="Typo.body1">Brak użytkowników do wyświetlenia.</MudText>
+            }
             <MudDataGridPager T="UserDto" />
         </PagerContent>
     </MudDataGrid>
-    @if (_dataGrid?.Items?.Count() == 0)
-    {
-        <MudText Class="mt-3" Typo="Typo.body1">Brak użytkowników do wyświetlenia.</MudText>
-    }
 </MudContainer>
 
 
@@ -47,7 +39,7 @@
 
     private MudDataGrid<UserDto> _dataGrid = new();
 
-    // private string? _searchTerm;
+    private bool _emptyGrid = false;
 
     private async Task<List<UserDto>> GetUsers(int pageSize, int currentPage)
     {
@@ -85,6 +77,8 @@
         {
             var users = await GetUsers(pageSize, currentPage);
             var usersCount = await GetUsersCount();
+
+            _emptyGrid = usersCount == 0;
 
             GridData<UserDto> data = new()
             {

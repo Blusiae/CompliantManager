@@ -15,14 +15,6 @@
     <MudDataGrid ServerData="LoadGridData" T="CustomerDto" @ref="_dataGrid" Class="mt-5" SortMode="SortMode.None" MultiSelection="true" SelectedItemsChanged="StateHasChanged">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Klienci</MudText>
-            <MudSpacer />
-            <!--<MudTextField @bind-Value="_searchTerm"
-                          Placeholder="Szukaj"
-                          Immediate="true"
-                          Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Search"
-                          OnBlur="ReloadGrid"
-                          OnKeyUp="@(e => { if (e.Key == "Enter") ReloadGrid(); })" /> -->
         </ToolBarContent>
         <Columns>
             <SelectColumn T="CustomerDto" />
@@ -32,7 +24,7 @@
             <PropertyColumn Property="@(c => c.PhoneNumber)" Title="Numer telefonu" />
         </Columns>
         <PagerContent>
-            @if (_dataGrid?.Items is null || !_dataGrid.Items.Any())
+            @if (_emptyGrid)
             {
                 <MudText Class="mt-3 mb-2 ml-3" Typo="Typo.body1">Brak klientów do wyświetlenia.</MudText>
             }
@@ -46,7 +38,7 @@
 
     private MudDataGrid<CustomerDto> _dataGrid = new();
 
-    // private string? _searchTerm;
+    private bool _emptyGrid = false;
 
     private async Task<List<CustomerDto>> GetCustomers(int pageSize, int currentPage)
     {
@@ -84,6 +76,8 @@
         {
             var customers = await GetCustomers(pageSize, currentPage);
             var customersCount = await GetCustomersCount();
+
+            _emptyGrid = customers.Count == 0;
 
             GridData<CustomerDto> data = new()
             {

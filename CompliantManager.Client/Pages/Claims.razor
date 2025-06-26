@@ -26,6 +26,10 @@
             <PropertyColumn Property="@(c => c.CreatedOn.ToShortDateString())" Title="Data zgłoszenia" />
         </Columns>
         <PagerContent>
+            @if (_emptyGrid)
+            {
+                <MudText Class="mt-3 mb-2 ml-3" Typo="Typo.body1">Brak zgłoszeń do wyświetlenia.</MudText>
+            }
             <MudDataGridPager T="ClaimDto" />
         </PagerContent>
     </MudDataGrid>
@@ -40,6 +44,8 @@
     public string Mode { get; set; }
 
     private ListMode _listMode;
+
+    private bool _emptyGrid = false;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -90,13 +96,15 @@
 
         try
         {
-            var facts = await GetClaims(pageSize, currentPage);
-            var factsCount = await GetClaimsCount();
+            var claims = await GetClaims(pageSize, currentPage);
+            var claimsCount = await GetClaimsCount();
+
+            _emptyGrid = claimsCount == 0;
 
             GridData<ClaimDto> data = new()
             {
-                Items = facts,
-                TotalItems = factsCount
+                Items = claims,
+                TotalItems = claimsCount
             };
 
             return data;
