@@ -93,9 +93,9 @@
 
                         <MudTextField @bind-Value="_customer.HouseNumber"
                                       Label="Numer domu"
-                                      Required="false"
+                                      Required="true"
                                       For="@(() => _customer.HouseNumber)"
-                                      Class="mt-3" />
+                                      ErrorText="Numer domu jest wymagany." Class="mt-3" />
                     </MudCardContent>
                 </MudCard>
             </MudItem>
