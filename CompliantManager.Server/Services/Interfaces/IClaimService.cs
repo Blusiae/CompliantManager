@@ -12,5 +12,6 @@ namespace CompliantManager.Server.Services.Interfaces
         Task<bool> Delete(int id);
         Task<List<Claim>> GetByCustomerId(int skip, int take, int customerId);
         Task<int> GetCount();
+        Task<Claim?> GetByIdAsNoTracking(int id);
     }
 }

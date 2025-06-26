@@ -55,5 +55,12 @@ namespace CompliantManager.Server.Repositories.Implementations
                 .Take(take)
                 .ToListAsync();
         }
+        public async Task<Claim?> GetByIdAsNoTracking (int id)
+        {
+            return await DbSet.AsNoTracking()
+                .Include(c => c.Order)
+                    .ThenInclude(o => o.Customer)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
     }
 }
