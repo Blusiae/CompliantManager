@@ -9,7 +9,7 @@
 <MudPaper Elevation="25">
     <MudToolBar>
         <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" OnClick="@(() => Navigation.NavigateTo("/customers"))" />
-        <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/customer"))">Nowy</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/customer", true))">Nowy</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Save" OnClick="Save">Zapisz</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="Id is null" OnClick="Delete">Usuń</MudButton>
     </MudToolBar>
@@ -145,15 +145,16 @@
             {
                 var customerId = await _customerService.CreateAsync(_customer);
                 Snackbar.Add("Klient został utworzony.", Severity.Success);
-                Navigation.NavigateTo($"/customer/{customerId}");
+                Navigation.NavigateTo($"/customer/{customerId}", false);
             }
             else
             {
                 await _customerService.UpdateAsync(_customer);
                 Snackbar.Add("Klient został zaktualizowany.", Severity.Success);
-                Navigation.Refresh();
+                _customer = await _customerService.GetByIdAsync(Id.Value);
             }
-            Navigation.NavigateTo("/customers");
+
+
         }
         catch (Exception ex)
         {
