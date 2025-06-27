@@ -8,7 +8,6 @@ using CompliantManager.Shared.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;

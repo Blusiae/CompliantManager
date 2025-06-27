@@ -12,7 +12,7 @@
     <MudPaper Elevation="25">
         <MudToolBar>
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" OnClick="@(() => Navigation.NavigateTo($"/claims/{_listMode}"))" />
-            <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/claim"))">Nowe</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/claim", true))">Nowe</MudButton>
             <MudButton StartIcon="@Icons.Material.Filled.Save" OnClick="Save">Zapisz</MudButton>
             <MudButton StartIcon="@Icons.Material.Filled.Delete" OnClick="Delete" Disabled="Id is null">Usuń</MudButton>
             <MudButton StartIcon="@Icons.Material.Filled.Person" OnClick="TakeOver" Disabled="Id is null">Przejmij</MudButton>
@@ -251,7 +251,7 @@
             {
                 Id = await _claimService.CreateAsync(_claim);
                 Snackbar.Add("Zgłoszenie zostało utworzone.", Severity.Success);
-                _claim = await _claimService.GetByIdAsync(Id.Value);
+                Navigation.NavigateTo($"/claim/{Id}", true);
             }
             else
             {

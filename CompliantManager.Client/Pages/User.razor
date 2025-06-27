@@ -1,5 +1,5 @@
 ﻿@page "/user"
-@page "/user/{id}"
+@page "/user/{id:guid}"
 @using Microsoft.AspNetCore.WebUtilities;
 @inject NavigationManager Navigation
 @inject IUserService _userService
@@ -10,7 +10,7 @@
 <MudPaper Elevation="25">
     <MudToolBar>
         <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Class="mr-5" OnClick="@(() => Navigation.NavigateTo("/users"))" />
-        <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/user"))">Nowy</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => Navigation.NavigateTo("/user", true))">Nowy</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Save" OnClick="Save">Zapisz</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Delete" Disabled="Id is null" OnClick="Delete">Usuń</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.ArrowUpward" Disabled="_user.IsAdministrator || Id is null" OnClick="Promote">Awansuj</MudButton>
@@ -76,7 +76,7 @@
 
 @code {
     [Parameter]
-    public string? Id { get; set; }
+    public Guid? Id { get; set; }
 
     private UserDto _user = new();
     private MudForm _form = new();
@@ -87,7 +87,7 @@
         {
             try
             {
-                _user = await _userService.GetUserAsync(Guid.Parse(Id));
+                _user = await _userService.GetUserAsync(Id.Value);
             }
             catch (Exception ex)
             {
@@ -112,17 +112,16 @@
             }
             if (Id is null)
             {
-                var userId = await _userService.CreateUserAsync(_user);
+                Id = await _userService.CreateUserAsync(_user);
                 Snackbar.Add("Użytkownik został utworzony.", Severity.Success);
-                Navigation.NavigateTo($"/user/{userId}");
+                Navigation.NavigateTo($"/user/{Id}");
             }
             else
             {
                 await _userService.UpdateUserAsync(_user);
                 Snackbar.Add("Użytkownik został zaktualizowany.", Severity.Success);
-                //Navigation.Refresh();
+                _user = await _userService.GetUserAsync(Id.Value);
             }
-            Navigation.NavigateTo("/users");
         }
         catch (Exception ex)
         {
