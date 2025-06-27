@@ -185,6 +185,9 @@
 
 
     </MudPaper>
+    <MudOverlay Visible="_overlayVisible" DarkBackground="true" Absolute="true">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </MudOverlay>
 }
 
 
@@ -200,6 +203,7 @@
     private List<CustomerDto> _customers = new();
 
     private bool _isLoading = true;
+    private bool _overlayVisible = false;
 
     private ProductDto _newProduct = new();
 
@@ -255,6 +259,7 @@
             }
             else
             {
+                _overlayVisible = true;
                 await _claimService.UpdateAsync(_claim);
                 Snackbar.Add("Zgłoszenie zostało zaktualizowane.", Severity.Success);
                 _claim = await _claimService.GetByIdAsync(Id.Value);
@@ -264,6 +269,10 @@
         {
             Console.WriteLine($"Error saving user: {ex.Message}");
             Snackbar.Add("Wystąpił błąd podczas zapisywania zgłoszenia.", Severity.Error);
+        }
+        finally
+        {
+            _overlayVisible = false;
         }
     }
 
