@@ -14,6 +14,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
@@ -22,7 +24,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
+builder.AddSqlServerDbContext<ApplicationDbContext>("Database");
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
@@ -68,7 +70,22 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 
 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-dbContext.Database.Migrate();
+
+var retries = 0;
+while (true)
+{
+    try
+    {
+        dbContext.Database.Migrate();
+        break;
+    }
+    catch (Exception ex) when (retries < 10)
+    {
+        retries++;
+        app.Logger.LogWarning(ex, "Migration failed (attempt {Attempt}/10), retrying in {Delay}s...", retries, retries * 2);
+        await Task.Delay(TimeSpan.FromSeconds(retries * 2));
+    }
+}
 
 var setupService = scope.ServiceProvider.GetRequiredService<InitialSetupService>();
 if (!setupService.IsInitialized())
@@ -95,6 +112,7 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapDefaultEndpoints();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
